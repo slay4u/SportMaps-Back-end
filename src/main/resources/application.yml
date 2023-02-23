@@ -1,0 +1,30 @@
+# Spring Boot configuration
+spring:
+  # Database
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/spring
+    username: postgres
+    password: 123654
+  # JPA properties
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+  application:
+    name: app
+# Server configuration
+server:
+  port: 8090
+logging:
+  file:
+    name: logging.log
+    path: E:\spring pro\app\src\main\resources\logging.log
+  level:
+    web: info
+    root: info
