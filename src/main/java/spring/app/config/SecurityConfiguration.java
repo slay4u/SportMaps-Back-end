@@ -1,44 +1,67 @@
 package spring.app.config;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import spring.app.security.JwtAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfiguration {
-    private final JwtAuthenticationFilter jwtAuthFilter;
-    private final AuthenticationProvider authenticationProvider;
+    @Autowired
+    @Qualifier("delegatedAuthenticationEntryPoint")
+    AuthenticationEntryPoint authEntryPoint;
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+        return new JwtAuthenticationFilter();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**", "/api/v1/ping/**")
+        http.csrf().disable().authorizeHttpRequests()
+                .requestMatchers("/sport-maps/v1/auth/**")
                 .permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/products/**", "/api/v1/products/byId/**").hasAnyAuthority("USER", "ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/v1/products/new/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/v1/products/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/products/update/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .requestMatchers("/sport-maps/v1/news/new/**").hasAnyAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/news/update/**").hasAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/news/delete/**").hasAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/news/photo/upload/**").hasAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/events/new/**").hasAnyAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/events/update/**").hasAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/events/delete/**").hasAuthority("ADMIN")
+                .requestMatchers("/sport-maps/v1/events/photo/upload/**").hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                .exceptionHandling()
+                .authenticationEntryPoint(authEntryPoint);
 
+        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

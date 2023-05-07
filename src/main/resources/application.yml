@@ -21,10 +21,9 @@ spring:
 # Server configuration
 server:
   port: 8090
-logging:
-  file:
-    name: logging.log
-    path: E:\spring pro\app\src\main\resources\logging.log
-  level:
-    web: info
-    root: info
+jwt:
+  expiration:
+    time: 9000000000000000
+signup:
+  token:
+    time: 9000000000000000
