@@ -4,21 +4,20 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import spring.app.exception.LocalDateParseException;
+import spring.app.exception.LocalDateTimeParseException;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class LocalDateDeserializer extends StdDeserializer<LocalDateTime> {
+public class LocalDateTimeDeserializer extends StdDeserializer<LocalDateTime> {
 
-    public LocalDateDeserializer() {
+    public LocalDateTimeDeserializer() {
         this(null);
     }
 
-    public LocalDateDeserializer(Class<?> vc) {
+    public LocalDateTimeDeserializer(Class<?> vc) {
         super(vc);
     }
 
@@ -28,12 +27,12 @@ public class LocalDateDeserializer extends StdDeserializer<LocalDateTime> {
     public LocalDateTime deserialize(JsonParser jp, DeserializationContext context)
             throws IOException {
         JsonNode node = jp.getCodec().readTree(jp);
-        LocalDateTime parsedLocalDate;
+        LocalDateTime parsedLocalDateTime;
         try {
-            parsedLocalDate = LocalDateTime.parse(node.asText(), dateFormat);
+            parsedLocalDateTime = LocalDateTime.parse(node.asText(), dateFormat);
         } catch (DateTimeParseException e) {
-            throw new LocalDateParseException("LocalDate field deserialization failed! Either empty or invalid pattern!");
+            throw new LocalDateTimeParseException("LocalDate field deserialization failed! Either empty or invalid pattern!");
         }
-        return parsedLocalDate;
+        return parsedLocalDateTime;
     }
 }

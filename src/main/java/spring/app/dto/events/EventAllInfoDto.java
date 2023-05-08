@@ -5,8 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
 
-import java.util.Arrays;
-
 @Builder
 @Jacksonized
 @Getter

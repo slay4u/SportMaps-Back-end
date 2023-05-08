@@ -38,6 +38,11 @@ public class ImageData {
     @JsonBackReference
     private Event event;
 
+    @ManyToOne
+    @JoinColumn(name = "id_coach")
+    @JsonBackReference
+    private Coach coach;
+
     public ImageData(Long id, String name, String type, String filePath, New aNew) {
         this.id = id;
         this.name = name;
@@ -52,5 +57,13 @@ public class ImageData {
         this.type = type;
         this.filePath = filePath;
         this.event = event;
+    }
+
+    public ImageData(Long id, String name, String type, String filePath, Coach coach) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.filePath = filePath;
+        this.coach = coach;
     }
 }

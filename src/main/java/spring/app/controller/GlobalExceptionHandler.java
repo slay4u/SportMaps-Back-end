@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import spring.app.exception.AlreadyExistException;
 import spring.app.exception.AuthenticationException;
-import spring.app.exception.LocalDateParseException;
+import spring.app.exception.LocalDateTimeParseException;
 import spring.app.exception.NotFoundException;
 
 import static org.springframework.http.HttpStatus.*;
@@ -31,9 +31,9 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(e.getMessage(), BAD_REQUEST);
     }
 
-    @ExceptionHandler(LocalDateParseException.class)
-    protected ResponseEntity<Object> handleLocalDateParseException(LocalDateParseException e) {
-        log.warn("LocalDateParseException thrown: {}", e.getMessage());
+    @ExceptionHandler(LocalDateTimeParseException.class)
+    protected ResponseEntity<Object> handleLocalDateParseException(LocalDateTimeParseException e) {
+        log.warn("LocalDateTimeParseException thrown: {}", e.getMessage());
         return buildErrorResponse(e.getMessage(), NOT_FOUND);
     }
 

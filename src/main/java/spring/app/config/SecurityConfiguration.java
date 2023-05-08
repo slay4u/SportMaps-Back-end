@@ -19,6 +19,17 @@ import spring.app.security.JwtAuthenticationFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v3 (OpenAPI)
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/swagger-ui.html/**",
+            "/swagger-ui/index.html",
+            "/swagger-ui/index.html/**",
+            "/**"
+    };
+
     @Autowired
     @Qualifier("delegatedAuthenticationEntryPoint")
     AuthenticationEntryPoint authEntryPoint;
@@ -44,15 +55,21 @@ public class SecurityConfiguration {
         http.csrf().disable().authorizeHttpRequests()
                 .requestMatchers("/sport-maps/v1/auth/**")
                 .permitAll()
+                .requestMatchers(HttpMethod.GET, AUTH_WHITELIST)
+                .permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/sport-maps/v1/news/new/**").hasAnyAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/news/update/**").hasAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/news/delete/**").hasAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/news/photo/upload/**").hasAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/events/new/**").hasAnyAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/events/update/**").hasAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/events/delete/**").hasAuthority("ADMIN")
-                .requestMatchers("/sport-maps/v1/events/photo/upload/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/news/new/**").hasAnyAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/news/update/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/news/delete/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/news/photo/upload/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/events/new/**").hasAnyAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/events/update/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/events/delete/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/events/photo/upload/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/coaches/new/**").hasAnyAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/coaches/update/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/coaches/delete/**").hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/coaches/photo/upload/**").hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()

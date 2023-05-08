@@ -21,4 +21,8 @@ public interface ImageDataDao extends JpaRepository<ImageData, Long> {
     @Query(value = "SELECT * FROM public.image_data" +
             " WHERE id_event = ?1", nativeQuery = true)
     List<ImageData> findAllByEventId(Long id);
+
+    @Query(value = "SELECT * FROM public.image_data" +
+            " WHERE id_coach = ?1", nativeQuery = true)
+    List<ImageData> findAllByCoachId(Long id);
 }

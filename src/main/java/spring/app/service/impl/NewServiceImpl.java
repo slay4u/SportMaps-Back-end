@@ -148,6 +148,7 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     private New updateContent(New aNew, New resultNew) {
         resultNew.setName(aNew.getName());
         resultNew.setPublishDate(aNew.getPublishDate());
+        resultNew.setDescription(aNew.getDescription());
         return resultNew;
     }
 
@@ -170,7 +171,7 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     private NewInfoDto convertEntityToDto(New aNew, String state) {
         return NewInfoDto.builder()
                 .id(aNew.getIdNew())
-                .result("New " + aNew.getName() + " " + state + " successfully")
+                .result("New " + aNew.getName() + " " + state + " successfully.")
                 .build();
     }
 

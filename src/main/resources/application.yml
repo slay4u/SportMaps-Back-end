@@ -27,3 +27,9 @@ jwt:
 signup:
   token:
     time: 9000000000000000
+sport:
+  maps:
+    openapi:
+      dev-url: http://localhost:8090
+
+      prod-url: http://localhost:8090

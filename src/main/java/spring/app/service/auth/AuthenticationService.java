@@ -8,7 +8,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.app.domain.VerificationToken;
@@ -29,6 +28,8 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -167,19 +168,33 @@ public class AuthenticationService {
 
     private void validateNewUser(RegisterRequest registerRequest) {
         if (registerRequest.getFirstName().isBlank() || Objects.isNull(registerRequest.getFirstName())
-                || registerRequest.getFirstName().length() < 2) {
+                || isValidUsername(registerRequest.getFirstName())) {
             throw new IllegalArgumentException("User's first name is not valid");
         }
         if (registerRequest.getLastName().isBlank() || Objects.isNull(registerRequest.getLastName())
-                || registerRequest.getLastName().length() < 2) {
+                || isValidUsername(registerRequest.getLastName())) {
             throw new IllegalArgumentException("User's last name is not valid");
         }
         if (registerRequest.getEmail().isBlank() || Objects.isNull(registerRequest.getEmail())) {
             throw new IllegalArgumentException("User's email is not valid");
         }
         if (registerRequest.getPassword().isBlank() || Objects.isNull(registerRequest.getPassword())
-                || registerRequest.getPassword().length() < 8) {
+                || isValidPassword(registerRequest.getPassword())) {
             throw new IllegalArgumentException("User's password is not valid");
         }
+    }
+
+    private boolean isValidUsername(String name) {
+        String regex = "^(?=.{2,30}$)[A-Z][a-zA-Z]*(?:\\h+[A-Z][a-zA-Z]*)*$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(name);
+        return !m.matches();
+    }
+
+    private boolean isValidPassword(String password) {
+        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[{}:#@!;\\[_'`\\],\".\\/~?*\\-$^+=\\\\<>]).{8,20}$";
+        Pattern p = Pattern.compile(regex);
+        Matcher m = p.matcher(password);
+        return !m.matches();
     }
 }

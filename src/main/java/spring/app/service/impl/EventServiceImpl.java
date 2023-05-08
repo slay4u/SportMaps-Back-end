@@ -130,7 +130,7 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         if (event.getEventDate().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Event's date is not valid");
         }
-        if (event.getSportType() == null || Objects.isNull(event.getSportType())) {
+        if (event.getSportType().isBlank() || Objects.isNull(event.getSportType())) {
             throw new IllegalArgumentException("Event's sport type is not valid");
         }
     }
@@ -174,6 +174,7 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         resultEvent.setName(event.getName());
         resultEvent.setEventDate(event.getEventDate());
         resultEvent.setSportType(event.getSportType());
+        resultEvent.setDescription(event.getDescription());
         return resultEvent;
     }
 
@@ -197,7 +198,7 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     private EventInfoDto convertEntityToDto(Event event, String state) {
         return EventInfoDto.builder()
                 .id(event.getIdEvent())
-                .result("Event " + event.getName() + " " + state + " successfully")
+                .result("Event " + event.getName() + " " + state + " successfully.")
                 .build();
     }
 

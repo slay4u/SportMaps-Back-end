@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.format.annotation.DateTimeFormat;
-import spring.app.util.LocalDateDeserializer;
+import spring.app.util.LocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +18,7 @@ public class EventCreateDto {
     @NotBlank(message = "Name can't be empty")
     private String name;
 
-    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime eventDate;
 
