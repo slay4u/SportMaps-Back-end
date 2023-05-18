@@ -21,8 +21,8 @@ public class AuthenticationController {
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
-        authenticationService.signup(registerRequest);
-        return new ResponseEntity<>("User registration successful!", HttpStatus.OK);
+        String response = authenticationService.signup(registerRequest);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/accountVerification/{token}")

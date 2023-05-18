@@ -45,7 +45,7 @@ public class AuthenticationService {
     @Value("${signup.token.time}")
     private Long tokenExpiration;
 
-    public void signup(RegisterRequest registerRequest) {
+    public String signup(RegisterRequest registerRequest) {
         validateNewUser(registerRequest);
         validateExistingUser(registerRequest);
         User user = new User();
@@ -60,7 +60,7 @@ public class AuthenticationService {
         userDao.save(user);
 
         String token = generateVerificationToken(user);
-        System.out.println("http://localhost:8090/sport-maps/v1/auth/accountVerification/" + token);
+        return "http://localhost:8090/sport-maps/v1/auth/accountVerification/" + token;
     }
 
     public void verifyToken(String token) {
