@@ -1,6 +1,5 @@
 package spring.app.modules.coach.service;
 
-import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,25 +15,18 @@ import spring.app.modules.coach.dao.CoachDao;
 import spring.app.modules.commons.repository.ImageDataDao;
 import spring.app.modules.commons.util.convert.SimpleEntityConverter;
 
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Service
 @Transactional
@@ -95,7 +87,6 @@ public class CoachServiceImpl implements CoachService {
         return listToDto(coaches);
     }
 
-
     public String uploadImage(MultipartFile file, Long id) throws IOException {
         String filePath = FOLDER_PATH + "\\" + file.getOriginalFilename();
         validatePresentImage(file.getOriginalFilename(), filePath);
@@ -112,14 +103,6 @@ public class CoachServiceImpl implements CoachService {
 
         file.transferTo(new File(filePath));
         return "Image uploaded successfully " + file.getOriginalFilename();
-    }
-
-    public byte[] downloadImages(Long id) throws IOException {
-        List<ImageData> imageData = imageDataDao.findAllByCoachId(id);
-        if (imageData.isEmpty()) {
-            throw new NotFoundException("No image by the id " + id + " has been found!");
-        }
-        return zipImages(imageData.stream().map(ImageData::getFilePath).toList());
     }
 
     @Override
@@ -194,7 +177,14 @@ public class CoachServiceImpl implements CoachService {
     }
 
     private Coach updateContent(Coach coach, Coach resultCoach) {
-        return SimpleEntityConverter.convert(resultCoach, coach);
+        resultCoach.setFirstName(coach.getFirstName());
+        resultCoach.setLastName(coach.getLastName());
+        resultCoach.setAge(coach.getAge());
+        resultCoach.setPrice(coach.getPrice());
+        resultCoach.setExperience(coach.getExperience());
+        resultCoach.setDescription(coach.getDescription());
+        resultCoach.setSportType(coach.getSportType());
+        return resultCoach;
     }
 
     private Coach getById(Long id) {
@@ -203,42 +193,6 @@ public class CoachServiceImpl implements CoachService {
             throw new NotFoundException("Coach by id was not found!");
         }
         return resultCoach.get();
-    }
-
-    private byte[] zipImages(List<String> imgPathList) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-        ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
-
-        List<File> fileList = new ArrayList<>();
-
-        for (String imgPath : imgPathList) {
-            fileList.add(new File(imgPath));
-        }
-
-        for (File file : fileList) {
-            zipOutputStream.putNextEntry(new ZipEntry(file.getName()));
-            FileInputStream fileInputStream;
-            try {
-                fileInputStream = new FileInputStream(file);
-            } catch (FileNotFoundException e) {
-                throw new NotFoundException("Image with path "
-                        + file.getPath() + " has not been found!");
-            }
-
-            IOUtils.copy(fileInputStream, zipOutputStream);
-
-            fileInputStream.close();
-            zipOutputStream.closeEntry();
-        }
-
-        zipOutputStream.finish();
-        zipOutputStream.flush();
-        IOUtils.closeQuietly(zipOutputStream);
-        IOUtils.closeQuietly(bufferedOutputStream);
-        IOUtils.closeQuietly(byteArrayOutputStream);
-
-        return byteArrayOutputStream.toByteArray();
     }
 
     private byte[] fetchImage(Long id) throws IOException {

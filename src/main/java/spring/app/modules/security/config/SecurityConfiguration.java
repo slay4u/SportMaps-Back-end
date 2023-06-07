@@ -26,8 +26,7 @@ public class SecurityConfiguration {
             "/swagger-ui.html",
             "/swagger-ui.html/**",
             "/swagger-ui/index.html",
-            "/swagger-ui/index.html/**",
-            "/**"
+            "/swagger-ui/index.html/**"
     };
 
     @Autowired
@@ -53,10 +52,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeHttpRequests()
-                .requestMatchers("/sport-maps/v1/auth/**")
-                .permitAll()
-                .requestMatchers(HttpMethod.GET, AUTH_WHITELIST)
-                .permitAll()
+                .requestMatchers("/sport-maps/v1/auth/**").permitAll()
+                .requestMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/sport-maps/v1/news/new/**").hasAnyAuthority("ADMIN")
                 .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/news/update/**").hasAuthority("ADMIN")

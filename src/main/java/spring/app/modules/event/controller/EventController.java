@@ -1,6 +1,5 @@
 package spring.app.modules.event.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -66,13 +65,6 @@ public class EventController {
                                          @RequestParam ("image") MultipartFile file) throws IOException {
         String uploadImage = eventService.uploadImage(file, id);
         return ResponseEntity.ok(uploadImage);
-    }
-
-    @GetMapping(value = "/photo/download/{id}", produces="application/zip")
-    @ResponseStatus(HttpStatus.OK)
-    public byte[] downloadImage(@PathVariable Long id, HttpServletResponse response) throws IOException {
-        response.addHeader("Content-Disposition", "attachment; filename=\"assigned_imgs.zip\"");
-        return eventService.downloadImages(id);
     }
 
     @GetMapping(value = "/count")

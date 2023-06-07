@@ -20,7 +20,5 @@ public interface NewService {
 
     String uploadImage(MultipartFile file, Long id) throws IOException;
 
-    byte[] downloadImages(Long id) throws IOException;
-
     double getTotalPagesCount();
 }

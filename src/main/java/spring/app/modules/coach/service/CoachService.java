@@ -18,5 +18,7 @@ public interface CoachService {
 
     List<CoachAllInfoDto> getAllCoaches(int pageNumber);
 
+    String uploadImage(MultipartFile file, Long id) throws IOException;
+
     double getTotalPagesCount();
 }
