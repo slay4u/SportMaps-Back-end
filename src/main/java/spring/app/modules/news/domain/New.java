@@ -16,7 +16,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@BaseDto(exclude = {"idNew", "imageDataList"})
 public class New {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

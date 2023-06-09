@@ -1,24 +1,23 @@
 package spring.app.modules.event.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
-import spring.app.modules.commons.util.convert.ConvertType;
-import spring.app.modules.commons.util.convert.Dto;
+import spring.app.modules.comments.eventComment.domain.EventComment;
+
+import java.util.List;
 
 @Jacksonized
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 public class EventAllInfoDto {
-    @Dto
+    private Long id;
     private String name;
-    @Dto
     private String eventDate;
-    @Dto(property = "description")
     private String desc;
-    @Dto(value = ConvertType.ENUM)
     private String sportType;
     private byte[] image;
+    private List<EventComment> eventCommentList;
 }

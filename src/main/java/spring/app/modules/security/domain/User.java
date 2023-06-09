@@ -1,13 +1,17 @@
 package spring.app.modules.security.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring.app.modules.comments.newsComment.domain.NewsComment;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")

@@ -5,7 +5,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import spring.app.modules.comments.eventComment.dao.EventCommentDao;
+import spring.app.modules.comments.eventComment.domain.EventComment;
+import spring.app.modules.comments.newsComment.domain.NewsComment;
 import spring.app.modules.commons.domain.ImageData;
+import spring.app.modules.commons.domain.SportType;
 import spring.app.modules.commons.util.convert.SimpleEntityConverter;
 import spring.app.modules.event.domain.Event;
 import spring.app.modules.event.dto.EventAllInfoDto;
@@ -29,14 +33,16 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl implements EventService, EventGeneralHandler {
     private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final ImageDataDao imageDataDao;
     private final String FOLDER_PATH;
     private final EventDao eventDao;
+    private final EventCommentDao eventCommentDao;
 
-    public EventServiceImpl(EventDao eventDao, ImageDataDao imageDataDao) throws URISyntaxException {
+    public EventServiceImpl(EventDao eventDao, ImageDataDao imageDataDao, EventCommentDao eventCommentDao) throws URISyntaxException {
         this.eventDao = eventDao;
+        this.eventCommentDao = eventCommentDao;
         this.imageDataDao = imageDataDao;
         this.FOLDER_PATH = getFOLDER_PATH();
     }
@@ -52,7 +58,8 @@ public class EventServiceImpl implements EventService {
     public int createEvent(EventCreateDto eventDto) {
         validateEvent(eventDto);
         validateEventName(eventDto.getName());
-        Event event = SimpleEntityConverter.convert(eventDto, new Event());
+        SportType sportType = getSportType(eventDto);
+        Event event = convertToEntity(eventDto, sportType, new Event());
         eventDao.save(event);
         return HttpStatus.CREATED.value();
     }
@@ -60,7 +67,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public int updateEvent(Long id, EventCreateDto eventDto) {
         validateEvent(eventDto);
-        Event event = SimpleEntityConverter.convert(eventDto, new Event());
+        SportType sportType = getSportType(eventDto);
+        Event event = convertToEntity(eventDto, sportType, new Event());
         eventDao.save(updateContent(event, getById(id)));
         return HttpStatus.CREATED.value();
     }
@@ -112,6 +120,25 @@ public class EventServiceImpl implements EventService {
         return Math.ceil(pagesNum);
     }
 
+    private void validateSportType(String sportInString) {
+        boolean flag = false;
+        for (SportType sportType : SportType.values()) {
+            if (sportType.name().equals(sportInString)) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            throw new IllegalArgumentException("Sport type was not found!");
+        }
+    }
+
+    private SportType getSportType(EventCreateDto event) {
+        String sportInString = event.getSportType();
+        validateSportType(sportInString);
+        return SportType.valueOf(sportInString);
+    }
+
     private void validateEvent(EventCreateDto event) {
         if (event.getName().isBlank() || Objects.isNull(event.getName())) {
             throw new IllegalArgumentException("Event's name is not valid");
@@ -152,6 +179,14 @@ public class EventServiceImpl implements EventService {
         return resultEvent.get();
     }
 
+    private Event convertToEntity(EventCreateDto eventDto, SportType sportType, Event event) {
+        event.setName(eventDto.getName());
+        event.setEventDate(eventDto.getEventDate());
+        event.setDescription(eventDto.getDesc());
+        event.setSportType(sportType);
+        return event;
+    }
+
     private byte[] fetchImage(Long id) throws IOException {
         List<ImageData> allByEventId = imageDataDao.findAllByEventId(id);
         if (allByEventId.isEmpty()) {
@@ -162,17 +197,26 @@ public class EventServiceImpl implements EventService {
         return Files.readAllBytes(new File(imagePath).toPath());
     }
 
+    private List<EventComment> fetchEventComments(Long id) {
+        List<EventComment> comments = eventCommentDao.findAllByEventId(id);
+        if (comments.isEmpty()) {
+            return null;
+        }
+        return comments;
+    }
+
     public List<EventAllInfoDto> listToDto(List<Event> events) {
-        return events.stream().map(this::allInfoDto).collect(Collectors.toList());
+        return EventGeneralHandler.super.listToDto(events);
     }
 
     public EventAllInfoDto allInfoDto(Event event) {
-        EventAllInfoDto eventAllInfoDto = SimpleEntityConverter.convert(event, new EventAllInfoDto());
+        EventAllInfoDto eventAllInfoDto = EventGeneralHandler.super.allInfoDto(event);
         try {
             eventAllInfoDto.setImage(fetchImage(event.getIdEvent()));
         } catch (IOException e) {
             throw new IllegalArgumentException("Error while reading from image path! " + event.getIdEvent());
         }
+        eventAllInfoDto.setEventCommentList(fetchEventComments(event.getIdEvent()));
         return eventAllInfoDto;
     }
 }
