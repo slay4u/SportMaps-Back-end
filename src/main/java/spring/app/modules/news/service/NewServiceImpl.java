@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -196,7 +195,7 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
         } catch (IOException e) {
             throw new IllegalArgumentException("Error while reading from image path! " + aNew.getIdNew());
         }
-        newAllInfoDto.setCommentSet(fetchNewsComments(aNew.getIdNew()));
+        newAllInfoDto.setCommentList(fetchNewsComments(aNew.getIdNew()));
         return newAllInfoDto;
     }
 }

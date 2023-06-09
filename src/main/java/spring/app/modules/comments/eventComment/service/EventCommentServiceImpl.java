@@ -21,7 +21,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class EventCommentServiceImpl implements EventCommentService, EventCommentGeneralHandler {
-
     private final EventCommentDao eventCommentDao;
     private final UserDao userDao;
     private final EventDao eventDao;
@@ -80,17 +79,17 @@ public class EventCommentServiceImpl implements EventCommentService, EventCommen
                 new NotFoundException("Event by id " + commentDto.getIdEvent() + " was not found."));
     }
 
-    private void validateEventComment(EventCommentCreateDto createDto) {
-        if (createDto.getText().isBlank() || Objects.isNull(createDto.getText())) {
+    private void validateEventComment(EventCommentCreateDto eventCommentCreateDto) {
+        if (eventCommentCreateDto.getText().isBlank() || Objects.isNull(eventCommentCreateDto.getText())) {
             throw new IllegalArgumentException("EventComment's text is not valid");
         }
-        if (createDto.getCreatedDate().isAfter(LocalDateTime.now())) {
+        if (eventCommentCreateDto.getCreatedDate().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Create date is not valid");
         }
-        if (createDto.getEmailUser().isBlank() || Objects.isNull(createDto.getEmailUser())) {
+        if (eventCommentCreateDto.getEmailUser().isBlank() || Objects.isNull(eventCommentCreateDto.getEmailUser())) {
             throw new IllegalArgumentException("EventComment's user email is not valid");
         }
-        if (createDto.getIdEvent() == null || Objects.isNull(createDto.getIdEvent())) {
+        if (eventCommentCreateDto.getIdEvent() == null || Objects.isNull(eventCommentCreateDto.getIdEvent())) {
             throw new IllegalArgumentException("EventComment's idEvent is not valid");
         }
     }

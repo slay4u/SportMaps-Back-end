@@ -7,10 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import spring.app.modules.comments.eventComment.dao.EventCommentDao;
 import spring.app.modules.comments.eventComment.domain.EventComment;
-import spring.app.modules.comments.newsComment.domain.NewsComment;
 import spring.app.modules.commons.domain.ImageData;
 import spring.app.modules.commons.domain.SportType;
-import spring.app.modules.commons.util.convert.SimpleEntityConverter;
 import spring.app.modules.event.domain.Event;
 import spring.app.modules.event.dto.EventAllInfoDto;
 import spring.app.modules.event.dto.EventCreateDto;
@@ -29,7 +27,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional

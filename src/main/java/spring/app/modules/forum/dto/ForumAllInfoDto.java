@@ -1,10 +1,10 @@
-package spring.app.modules.news.dto;
+package spring.app.modules.forum.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
-import spring.app.modules.comments.newsComment.domain.NewsComment;
+import spring.app.modules.comments.forumComment.domain.ForumComment;
 
 import java.util.List;
 
@@ -12,11 +12,10 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class NewAllInfoDto {
+public class ForumAllInfoDto {
     private Long id;
     private String name;
-    private String publishDate;
+    private String createDate;
     private String desc;
-    private byte[] image;
-    private List<NewsComment> commentList;
+    private List<ForumComment> commentList;
 }

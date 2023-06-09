@@ -18,7 +18,7 @@ public class EventCommentController {
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public int createComment(@RequestBody EventCommentCreateDto eventCreateDto) {
+    public int createComment(@Valid @RequestBody EventCommentCreateDto eventCreateDto) {
         return commentService.createEventComment(eventCreateDto);
     }
 
@@ -36,7 +36,7 @@ public class EventCommentController {
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public int updateEventCommentById(@Valid @PathVariable("id") Long id, EventCommentCreateDto requestToSave) {
+    public int updateEventCommentById(@Valid @PathVariable("id") Long id, @RequestBody EventCommentCreateDto requestToSave) {
         return commentService.updateEventComment(id, requestToSave);
     }
 

@@ -21,7 +21,6 @@ import java.util.Optional;
 @Service
 @Transactional
 public class NewsCommentServiceImpl implements NewsCommentService, NewsCommentGeneralHandler {
-
     private final NewsCommentDao newsCommentDao;
     private final UserDao userDao;
     private final NewDao newDao;
@@ -80,17 +79,17 @@ public class NewsCommentServiceImpl implements NewsCommentService, NewsCommentGe
                 new NotFoundException("News by id " + commentDto.getIdNew() + " was not found."));
     }
 
-    private void validateNewsComment(NewsCommentCreateDto createDto) {
-        if (createDto.getText().isBlank() || Objects.isNull(createDto.getText())) {
+    private void validateNewsComment(NewsCommentCreateDto newsCommentCreateDto) {
+        if (newsCommentCreateDto.getText().isBlank() || Objects.isNull(newsCommentCreateDto.getText())) {
             throw new IllegalArgumentException("NewsComment's text is not valid");
         }
-        if (createDto.getCreatedDate().isAfter(LocalDateTime.now())) {
+        if (newsCommentCreateDto.getCreatedDate().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Create date is not valid");
         }
-        if (createDto.getEmailUser().isBlank() || Objects.isNull(createDto.getEmailUser())) {
+        if (newsCommentCreateDto.getEmailUser().isBlank() || Objects.isNull(newsCommentCreateDto.getEmailUser())) {
             throw new IllegalArgumentException("NewsComment's user email is not valid");
         }
-        if (createDto.getIdNew() == null || Objects.isNull(createDto.getIdNew())) {
+        if (newsCommentCreateDto.getIdNew() == null || Objects.isNull(newsCommentCreateDto.getIdNew())) {
             throw new IllegalArgumentException("NewsComment's idNew is not valid");
         }
     }

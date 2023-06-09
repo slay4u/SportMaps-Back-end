@@ -18,7 +18,7 @@ public class NewsCommentController {
 
     @PostMapping("/new")
     @ResponseStatus(HttpStatus.CREATED)
-    public int createComment(@RequestBody NewsCommentCreateDto requestToSave) {
+    public int createComment(@Valid @RequestBody NewsCommentCreateDto requestToSave) {
         return commentService.createNewsComment(requestToSave);
     }
 
@@ -36,7 +36,7 @@ public class NewsCommentController {
 
     @PutMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public int updateNewsCommentById(@Valid @PathVariable("id") Long id, NewsCommentCreateDto requestToSave) {
+    public int updateNewsCommentById(@Valid @PathVariable("id") Long id, @RequestBody NewsCommentCreateDto requestToSave) {
         return commentService.updateNewsComment(id, requestToSave);
     }
 
