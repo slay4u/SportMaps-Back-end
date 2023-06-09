@@ -17,13 +17,11 @@ import java.time.LocalDateTime;
 public class EventCreateDto {
     @NotBlank(message = "Name can't be empty")
     private String name;
-
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime eventDate;
-
+    @NotBlank(message = "Description can't be empty")
     private String desc;
-
     @NotNull(message = "SportType can't be empty")
     private String sportType;
 }

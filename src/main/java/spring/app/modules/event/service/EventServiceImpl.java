@@ -149,6 +149,9 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         if (event.getSportType().isBlank() || Objects.isNull(event.getSportType())) {
             throw new IllegalArgumentException("Event's sport type is not valid");
         }
+        if (event.getDesc().isBlank() || Objects.isNull(event.getDesc())) {
+            throw new IllegalArgumentException("Event's description is not valid");
+        }
     }
 
     private void validateEventName(String name) {
@@ -168,7 +171,11 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     }
 
     private Event updateContent(Event event, Event resultEvent) {
-        return SimpleEntityConverter.convert(event, resultEvent);
+        resultEvent.setDescription(event.getDescription());
+        resultEvent.setName(event.getName());
+        resultEvent.setSportType(event.getSportType());
+        resultEvent.setEventDate(event.getEventDate());
+        return resultEvent;
     }
 
     private Event getById(Long id) {
@@ -205,10 +212,12 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         return comments;
     }
 
+    @Override
     public List<EventAllInfoDto> listToDto(List<Event> events) {
         return EventGeneralHandler.super.listToDto(events);
     }
 
+    @Override
     public EventAllInfoDto allInfoDto(Event event) {
         EventAllInfoDto eventAllInfoDto = EventGeneralHandler.super.allInfoDto(event);
         try {

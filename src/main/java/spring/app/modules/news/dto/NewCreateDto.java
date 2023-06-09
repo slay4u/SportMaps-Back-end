@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 public class NewCreateDto {
     @NotBlank(message = "Name can't be empty")
     private String name;
-
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @DateTimeFormat(pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime publishDate;

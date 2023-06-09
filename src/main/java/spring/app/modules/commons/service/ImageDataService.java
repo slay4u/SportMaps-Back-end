@@ -1,6 +1,6 @@
 package spring.app.modules.commons.service;
 
-import lombok.AllArgsConstructor;
+/*import lombok.AllArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +18,7 @@ import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-/*@Service
+@Service
 @AllArgsConstructor
 public class ImageDataService {
 

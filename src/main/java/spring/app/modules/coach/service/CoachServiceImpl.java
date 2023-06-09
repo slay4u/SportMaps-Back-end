@@ -9,11 +9,11 @@ import spring.app.modules.coach.domain.Coach;
 import spring.app.modules.commons.domain.ImageData;
 import spring.app.modules.coach.dto.CoachAllInfoDto;
 import spring.app.modules.coach.dto.CoachCreateDto;
+import spring.app.modules.commons.domain.SportType;
 import spring.app.modules.commons.exception.AlreadyExistException;
 import spring.app.modules.commons.exception.NotFoundException;
 import spring.app.modules.coach.dao.CoachDao;
 import spring.app.modules.commons.repository.ImageDataDao;
-import spring.app.modules.commons.util.convert.SimpleEntityConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,11 +26,10 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class CoachServiceImpl implements CoachService {
+public class CoachServiceImpl implements CoachService, CoachGeneralHandler {
     private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final ImageDataDao imageDataDao;
     private final String FOLDER_PATH;
@@ -53,7 +52,8 @@ public class CoachServiceImpl implements CoachService {
     public int createCoach(CoachCreateDto coachDto) {
         validateCoach(coachDto);
         validatePresentCoach(coachDto);
-        Coach coach = SimpleEntityConverter.convert(coachDto, new Coach());
+        SportType sportType = getSportType(coachDto);
+        Coach coach = convertToEntity(coachDto, sportType, new Coach());
         coachDao.save(coach);
         return HttpStatus.CREATED.value();
     }
@@ -61,7 +61,8 @@ public class CoachServiceImpl implements CoachService {
     @Override
     public int updateCoach(Long id, CoachCreateDto coachDto) {
         validateCoach(coachDto);
-        Coach coach = SimpleEntityConverter.convert(coachDto, new Coach());
+        SportType sportType = getSportType(coachDto);
+        Coach coach = convertToEntity(coachDto, sportType, new Coach());
         coachDao.save(updateContent(coach, getById(id)));
         return HttpStatus.CREATED.value();
     }
@@ -133,6 +134,9 @@ public class CoachServiceImpl implements CoachService {
         if (coach.getPrice() == null || Objects.isNull(coach.getPrice()) || coach.getPrice() < 0) {
             throw new IllegalArgumentException("Coach's price is not valid");
         }
+        if (coach.getDesc().isBlank() || Objects.isNull(coach.getDesc())) {
+            throw new IllegalArgumentException("Coach's description is not valid");
+        }
     }
 
     private boolean isValidCoachName(String name) {
@@ -169,6 +173,25 @@ public class CoachServiceImpl implements CoachService {
         }
     }
 
+    private void validateSportType(String sportInString) {
+        boolean flag = false;
+        for (SportType sportType : SportType.values()) {
+            if (sportType.name().equals(sportInString)) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag) {
+            throw new IllegalArgumentException("Sport type was not found!");
+        }
+    }
+
+    private SportType getSportType(CoachCreateDto coach) {
+        String sportInString = coach.getSportType();
+        validateSportType(sportInString);
+        return SportType.valueOf(sportInString);
+    }
+
     private void validatePresentImage(String name, String filePath) {
         Optional<ImageData> result = imageDataDao.findByNameAndFilePath(name, filePath);
         if (result.isPresent()) {
@@ -195,6 +218,18 @@ public class CoachServiceImpl implements CoachService {
         return resultCoach.get();
     }
 
+    private Coach convertToEntity(CoachCreateDto coachDto, SportType sportType,
+                                  Coach coach) {
+        coach.setFirstName(coachDto.getFirstName());
+        coach.setLastName(coachDto.getLastName());
+        coach.setAge(coachDto.getAge());
+        coach.setPrice(coachDto.getPrice());
+        coach.setExperience(coachDto.getExperience());
+        coach.setDescription(coachDto.getDesc());
+        coach.setSportType(sportType);
+        return coach;
+    }
+
     private byte[] fetchImage(Long id) throws IOException {
         List<ImageData> allByCoachId = imageDataDao.findAllByCoachId(id);
         if (allByCoachId.isEmpty()) {
@@ -205,12 +240,14 @@ public class CoachServiceImpl implements CoachService {
         return Files.readAllBytes(new File(imagePath).toPath());
     }
 
+    @Override
     public List<CoachAllInfoDto> listToDto(List<Coach> coaches) {
-        return coaches.stream().map(this::allInfoDto).collect(Collectors.toList());
+        return CoachGeneralHandler.super.listToDto(coaches);
     }
 
+    @Override
     public CoachAllInfoDto allInfoDto(Coach coach) {
-        CoachAllInfoDto coachAllInfoDto = SimpleEntityConverter.convert(coach, new CoachAllInfoDto());
+        CoachAllInfoDto coachAllInfoDto = CoachGeneralHandler.super.allInfoDto(coach);
         try {
             coachAllInfoDto.setImage(fetchImage(coach.getIdCoach()));
         } catch (IOException e) {

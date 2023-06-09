@@ -1,19 +1,23 @@
 package spring.app.modules.news.dto;
 
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
-import spring.app.modules.commons.util.convert.BaseDto;
+import spring.app.modules.comments.newsComment.domain.NewsComment;
+
+import java.util.List;
+import java.util.Set;
 
 @Jacksonized
 @Getter
 @Setter
-@BaseDto(exclude = "image")
-@NoArgsConstructor
+@Builder
 public class NewAllInfoDto {
+    private Long id;
     private String name;
     private String publishDate;
-    private String description;
+    private String desc;
     private byte[] image;
+    private List<NewsComment> commentSet;
 }

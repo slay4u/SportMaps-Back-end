@@ -5,11 +5,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import spring.app.modules.comments.newsComment.dao.NewsCommentDao;
+import spring.app.modules.comments.newsComment.domain.NewsComment;
 import spring.app.modules.commons.domain.ImageData;
 import spring.app.modules.commons.exception.AlreadyExistException;
 import spring.app.modules.commons.exception.NotFoundException;
 import spring.app.modules.commons.repository.ImageDataDao;
-import spring.app.modules.commons.util.convert.SimpleEntityConverter;
 import spring.app.modules.news.dao.NewDao;
 import spring.app.modules.news.domain.New;
 import spring.app.modules.news.dto.NewAllInfoDto;
@@ -25,20 +26,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Service
 @Transactional
-public class NewServiceImpl implements NewService {
+public class NewServiceImpl implements NewService, NewGeneralHandler {
     private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final NewDao newDao;
     private final ImageDataDao imageDataDao;
     private final String FOLDER_PATH;
+    private final NewsCommentDao newsCommentDao;
 
-    public NewServiceImpl(NewDao newDao, ImageDataDao imageDataDao) throws URISyntaxException {
+    public NewServiceImpl(NewDao newDao, ImageDataDao imageDataDao, NewsCommentDao newsCommentDao) throws URISyntaxException {
         this.newDao = newDao;
         this.imageDataDao = imageDataDao;
         this.FOLDER_PATH = getFOLDER_PATH();
+        this.newsCommentDao = newsCommentDao;
     }
 
     private String getFOLDER_PATH() throws URISyntaxException {
@@ -52,7 +55,7 @@ public class NewServiceImpl implements NewService {
     public int createNew(NewCreateDto newDto) {
         validateNew(newDto);
         validateNewName(newDto.getName());
-        New aNew = SimpleEntityConverter.convert(newDto, new New());
+        New aNew = convertToEntity(newDto, new New());
         newDao.save(aNew);
         return HttpStatus.CREATED.value();
     }
@@ -60,7 +63,7 @@ public class NewServiceImpl implements NewService {
     @Override
     public int updateNew(Long id, NewCreateDto newDto) {
         validateNew(newDto);
-        New aNew = SimpleEntityConverter.convert(newDto, new New());
+        New aNew = convertToEntity(newDto, new New());
         newDao.save(updateContent(aNew, getById(id)));
         return HttpStatus.CREATED.value();
     }
@@ -119,6 +122,9 @@ public class NewServiceImpl implements NewService {
         if (aNew.getPublishDate().isAfter(LocalDateTime.now())) {
             throw new IllegalArgumentException("Publish date is not valid");
         }
+        if (aNew.getDesc().isBlank() || Objects.isNull(aNew.getDesc())) {
+            throw new IllegalArgumentException("Description is not valid");
+        }
     }
 
     private void validateNewName(String name) {
@@ -138,7 +144,10 @@ public class NewServiceImpl implements NewService {
     }
 
     private New updateContent(New aNew, New resultNew) {
-        return SimpleEntityConverter.convert(aNew, resultNew);
+        resultNew.setName(aNew.getName());
+        resultNew.setPublishDate(aNew.getPublishDate());
+        resultNew.setDescription(aNew.getDescription());
+        return resultNew;
     }
 
     private New getById(Long id) {
@@ -147,6 +156,13 @@ public class NewServiceImpl implements NewService {
             throw new NotFoundException("New by id was not found!");
         }
         return resultNew.get();
+    }
+
+    private New convertToEntity(NewCreateDto newDto, New aNew) {
+        aNew.setName(newDto.getName());
+        aNew.setPublishDate(newDto.getPublishDate());
+        aNew.setDescription(newDto.getDesc());
+        return aNew;
     }
 
     private byte[] fetchImage(Long id) throws IOException {
@@ -159,17 +175,28 @@ public class NewServiceImpl implements NewService {
         return Files.readAllBytes(new File(imagePath).toPath());
     }
 
-    public List<NewAllInfoDto> listToDto(List<New> news) {
-        return news.stream().map(this::allInfoDto).collect(Collectors.toList());
+    private List<NewsComment> fetchNewsComments(Long id) {
+        List<NewsComment> comments = newsCommentDao.findAllByNewsId(id);
+        if (comments.isEmpty()) {
+            return null;
+        }
+        return comments;
     }
 
+    @Override
+    public List<NewAllInfoDto> listToDto(List<New> news) {
+        return NewGeneralHandler.super.listToDto(news);
+    }
+
+    @Override
     public NewAllInfoDto allInfoDto(New aNew) {
-        NewAllInfoDto newAllInfoDto = SimpleEntityConverter.convert(aNew, new NewAllInfoDto());
+        NewAllInfoDto newAllInfoDto = NewGeneralHandler.super.allInfoDto(aNew);
         try {
             newAllInfoDto.setImage(fetchImage(aNew.getIdNew()));
         } catch (IOException e) {
             throw new IllegalArgumentException("Error while reading from image path! " + aNew.getIdNew());
         }
+        newAllInfoDto.setCommentSet(fetchNewsComments(aNew.getIdNew()));
         return newAllInfoDto;
     }
 }

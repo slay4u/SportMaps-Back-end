@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import spring.app.modules.commons.domain.ImageData;
-import spring.app.modules.commons.util.convert.BaseDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

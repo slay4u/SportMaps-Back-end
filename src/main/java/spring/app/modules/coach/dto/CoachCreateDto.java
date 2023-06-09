@@ -20,7 +20,8 @@ public class CoachCreateDto {
     private Long experience;
     @NotNull(message = "Price can't  be empty")
     private Double price;
-    private String description;
+    @NotBlank(message = "Description can't be empty")
+    private String desc;
     @NotNull(message = "SportType can't be empty")
     private String sportType;
 }
