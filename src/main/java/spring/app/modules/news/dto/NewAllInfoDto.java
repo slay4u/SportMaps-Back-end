@@ -18,5 +18,6 @@ public class NewAllInfoDto {
     private String publishDate;
     private String desc;
     private byte[] image;
+    private String emailUser;
     private List<NewsComment> commentList;
 }

@@ -16,6 +16,8 @@ import spring.app.modules.commons.exception.AlreadyExistException;
 import spring.app.modules.commons.exception.NotFoundException;
 import spring.app.modules.event.dao.EventDao;
 import spring.app.modules.commons.repository.ImageDataDao;
+import spring.app.modules.security.dao.UserDao;
+import spring.app.modules.security.domain.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,12 +38,14 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     private final String FOLDER_PATH;
     private final EventDao eventDao;
     private final EventCommentDao eventCommentDao;
+    private final UserDao userDao;
 
-    public EventServiceImpl(EventDao eventDao, ImageDataDao imageDataDao, EventCommentDao eventCommentDao) throws URISyntaxException {
+    public EventServiceImpl(EventDao eventDao, ImageDataDao imageDataDao, EventCommentDao eventCommentDao, UserDao userDao) throws URISyntaxException {
         this.eventDao = eventDao;
         this.eventCommentDao = eventCommentDao;
         this.imageDataDao = imageDataDao;
         this.FOLDER_PATH = getFOLDER_PATH();
+        this.userDao = userDao;
     }
 
     private String getFOLDER_PATH() throws URISyntaxException {
@@ -55,8 +59,9 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     public int createEvent(EventCreateDto eventDto) {
         validateEvent(eventDto);
         validateEventName(eventDto.getName());
+        User user = getUser(eventDto);
         SportType sportType = getSportType(eventDto);
-        Event event = convertToEntity(eventDto, sportType, new Event());
+        Event event = convertToEntity(eventDto, sportType, user, new Event());
         eventDao.save(event);
         return HttpStatus.CREATED.value();
     }
@@ -64,8 +69,9 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     @Override
     public int updateEvent(Long id, EventCreateDto eventDto) {
         validateEvent(eventDto);
+        User user = getUser(eventDto);
         SportType sportType = getSportType(eventDto);
-        Event event = convertToEntity(eventDto, sportType, new Event());
+        Event event = convertToEntity(eventDto, sportType, user, new Event());
         eventDao.save(updateContent(event, getById(id)));
         return HttpStatus.CREATED.value();
     }
@@ -117,6 +123,11 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         return Math.ceil(pagesNum);
     }
 
+    private User getUser(EventCreateDto eventCreateDto) {
+        return userDao.findByEmail(eventCreateDto.getEmailUser()).orElseThrow(() ->
+                new NotFoundException("User by email " + eventCreateDto.getEmailUser() + " was not found."));
+    }
+
     private void validateSportType(String sportInString) {
         boolean flag = false;
         for (SportType sportType : SportType.values()) {
@@ -148,6 +159,9 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         }
         if (event.getDesc().isBlank() || Objects.isNull(event.getDesc())) {
             throw new IllegalArgumentException("Event's description is not valid");
+        }
+        if (event.getEmailUser().isBlank() || Objects.isNull(event.getEmailUser())) {
+            throw new IllegalArgumentException("Event's user email is not valid");
         }
     }
 
@@ -183,11 +197,12 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         return resultEvent.get();
     }
 
-    private Event convertToEntity(EventCreateDto eventDto, SportType sportType, Event event) {
+    private Event convertToEntity(EventCreateDto eventDto, SportType sportType, User user, Event event) {
         event.setName(eventDto.getName());
         event.setEventDate(eventDto.getEventDate());
         event.setDescription(eventDto.getDesc());
         event.setSportType(sportType);
+        event.setCreatedBy(user);
         return event;
     }
 

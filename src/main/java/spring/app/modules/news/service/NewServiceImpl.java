@@ -15,6 +15,8 @@ import spring.app.modules.news.dao.NewDao;
 import spring.app.modules.news.domain.New;
 import spring.app.modules.news.dto.NewAllInfoDto;
 import spring.app.modules.news.dto.NewCreateDto;
+import spring.app.modules.security.dao.UserDao;
+import spring.app.modules.security.domain.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,12 +37,14 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     private final ImageDataDao imageDataDao;
     private final String FOLDER_PATH;
     private final NewsCommentDao newsCommentDao;
+    private final UserDao userDao;
 
-    public NewServiceImpl(NewDao newDao, ImageDataDao imageDataDao, NewsCommentDao newsCommentDao) throws URISyntaxException {
+    public NewServiceImpl(NewDao newDao, ImageDataDao imageDataDao, NewsCommentDao newsCommentDao, UserDao userDao) throws URISyntaxException {
         this.newDao = newDao;
         this.imageDataDao = imageDataDao;
         this.FOLDER_PATH = getFOLDER_PATH();
         this.newsCommentDao = newsCommentDao;
+        this.userDao = userDao;
     }
 
     private String getFOLDER_PATH() throws URISyntaxException {
@@ -54,7 +58,8 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     public int createNew(NewCreateDto newDto) {
         validateNew(newDto);
         validateNewName(newDto.getName());
-        New aNew = convertToEntity(newDto, new New());
+        User user = getUser(newDto);
+        New aNew = convertToEntity(newDto, user, new New());
         newDao.save(aNew);
         return HttpStatus.CREATED.value();
     }
@@ -62,7 +67,8 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     @Override
     public int updateNew(Long id, NewCreateDto newDto) {
         validateNew(newDto);
-        New aNew = convertToEntity(newDto, new New());
+        User user = getUser(newDto);
+        New aNew = convertToEntity(newDto, user, new New());
         newDao.save(updateContent(aNew, getById(id)));
         return HttpStatus.CREATED.value();
     }
@@ -114,6 +120,11 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
         return Math.ceil(pagesNum);
     }
 
+    private User getUser(NewCreateDto newCreateDto) {
+        return userDao.findByEmail(newCreateDto.getEmailUser()).orElseThrow(() ->
+                new NotFoundException("User by email " + newCreateDto.getEmailUser() + " was not found."));
+    }
+
     private void validateNew(NewCreateDto aNew) {
         if (aNew.getName().isBlank() || Objects.isNull(aNew.getName())) {
             throw new IllegalArgumentException("New's name is not valid");
@@ -123,6 +134,9 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
         }
         if (aNew.getDesc().isBlank() || Objects.isNull(aNew.getDesc())) {
             throw new IllegalArgumentException("Description is not valid");
+        }
+        if (aNew.getEmailUser().isBlank() || Objects.isNull(aNew.getEmailUser())) {
+            throw new IllegalArgumentException("User email is not valid");
         }
     }
 
@@ -157,10 +171,11 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
         return resultNew.get();
     }
 
-    private New convertToEntity(NewCreateDto newDto, New aNew) {
+    private New convertToEntity(NewCreateDto newDto, User user, New aNew) {
         aNew.setName(newDto.getName());
         aNew.setPublishDate(newDto.getPublishDate());
         aNew.setDescription(newDto.getDesc());
+        aNew.setCreatedBy(user);
         return aNew;
     }
 

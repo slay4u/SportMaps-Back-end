@@ -21,4 +21,6 @@ public class NewCreateDto {
     private LocalDateTime publishDate;
     @NotBlank(message = "Description can't be empty")
     private String desc;
+    @NotBlank(message = "Email can't be empty")
+    private String emailUser;
 }

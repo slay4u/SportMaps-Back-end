@@ -14,6 +14,7 @@ public interface EventGeneralHandler {
                 .eventDate(String.valueOf(event.getEventDate()))
                 .desc(event.getDescription())
                 .sportType(String.valueOf(event.getSportType()))
+                .emailUser(event.getCreatedBy().getEmail())
                 .build();
     }
 

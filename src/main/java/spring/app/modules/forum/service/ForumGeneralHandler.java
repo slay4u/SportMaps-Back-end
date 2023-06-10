@@ -15,6 +15,7 @@ public interface ForumGeneralHandler {
                 .name(forum.getName())
                 .createDate(String.valueOf(forum.getCreateDate()))
                 .desc(forum.getDescription())
+                .emailUser(forum.getCreatedBy().getEmail())
                 .build();
     }
 

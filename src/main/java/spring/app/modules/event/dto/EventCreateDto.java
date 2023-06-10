@@ -24,4 +24,6 @@ public class EventCreateDto {
     private String desc;
     @NotNull(message = "SportType can't be empty")
     private String sportType;
+    @NotBlank(message = "Email can't be empty")
+    private String emailUser;
 }

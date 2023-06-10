@@ -11,6 +11,8 @@ import spring.app.modules.forum.dao.ForumDao;
 import spring.app.modules.forum.domain.Forum;
 import spring.app.modules.forum.dto.ForumAllInfoDto;
 import spring.app.modules.forum.dto.ForumCreateDto;
+import spring.app.modules.security.dao.UserDao;
+import spring.app.modules.security.domain.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,17 +25,20 @@ public class ForumServiceImpl implements ForumService, ForumGeneralHandler {
     private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final ForumDao forumDao;
     private final ForumCommentDao forumCommentDao;
+    private final UserDao userDao;
 
-    public ForumServiceImpl(ForumDao forumDao, ForumCommentDao forumCommentDao) {
+    public ForumServiceImpl(ForumDao forumDao, ForumCommentDao forumCommentDao, UserDao userDao) {
         this.forumDao = forumDao;
         this.forumCommentDao = forumCommentDao;
+        this.userDao = userDao;
     }
 
     @Override
     public int createForum(ForumCreateDto forumCreateDto) {
         validateForum(forumCreateDto);
         validateForumName(forumCreateDto.getName());
-        Forum forum = convertToEntity(forumCreateDto, new Forum());
+        User user = getUser(forumCreateDto);
+        Forum forum = convertToEntity(forumCreateDto, user,new Forum());
         forumDao.save(forum);
         return HttpStatus.CREATED.value();
     }
@@ -41,7 +46,8 @@ public class ForumServiceImpl implements ForumService, ForumGeneralHandler {
     @Override
     public int updateForum(Long id, ForumCreateDto forumCreateDto) {
         validateForum(forumCreateDto);
-        Forum forum = convertToEntity(forumCreateDto, new Forum());
+        User user = getUser(forumCreateDto);
+        Forum forum = convertToEntity(forumCreateDto, user, new Forum());
         forumDao.save(updateContent(forum, getById(id)));
         return HttpStatus.CREATED.value();
     }
@@ -74,6 +80,11 @@ public class ForumServiceImpl implements ForumService, ForumGeneralHandler {
         return Math.ceil(pagesNum);
     }
 
+    private User getUser(ForumCreateDto forumCreateDto) {
+        return userDao.findByEmail(forumCreateDto.getEmailUser()).orElseThrow(() ->
+                new NotFoundException("User by email " + forumCreateDto.getEmailUser() + " was not found."));
+    }
+
     private void validateForum(ForumCreateDto forumCreateDto) {
         if (forumCreateDto.getName().isBlank() || Objects.isNull(forumCreateDto.getName())) {
             throw new IllegalArgumentException("Forum's name is not valid");
@@ -83,6 +94,9 @@ public class ForumServiceImpl implements ForumService, ForumGeneralHandler {
         }
         if (forumCreateDto.getDesc().isBlank() || Objects.isNull(forumCreateDto.getDesc())) {
             throw new IllegalArgumentException("Description is not valid");
+        }
+        if (forumCreateDto.getEmailUser().isBlank() || Objects.isNull(forumCreateDto.getEmailUser())) {
+            throw new IllegalArgumentException("User email is not valid");
         }
     }
 
@@ -110,10 +124,11 @@ public class ForumServiceImpl implements ForumService, ForumGeneralHandler {
         return resultForum.get();
     }
 
-    private Forum convertToEntity(ForumCreateDto forumCreateDto, Forum forum) {
+    private Forum convertToEntity(ForumCreateDto forumCreateDto, User user, Forum forum) {
         forum.setName(forumCreateDto.getName());
         forum.setCreateDate(forumCreateDto.getCreateDate());
         forum.setDescription(forumCreateDto.getDesc());
+        forum.setCreatedBy(user);
         return forum;
     }
 

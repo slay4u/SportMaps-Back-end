@@ -53,6 +53,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeHttpRequests()
                 .requestMatchers("/sport-maps/v1/auth/**").permitAll()
+                .requestMatchers("/sport-maps/v1/chat/**").permitAll()
                 .requestMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST,"/sport-maps/v1/news/new/**").hasAnyAuthority("ADMIN")

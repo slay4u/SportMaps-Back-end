@@ -19,5 +19,6 @@ public class EventAllInfoDto {
     private String desc;
     private String sportType;
     private byte[] image;
+    private String emailUser;
     private List<EventComment> eventCommentList;
 }

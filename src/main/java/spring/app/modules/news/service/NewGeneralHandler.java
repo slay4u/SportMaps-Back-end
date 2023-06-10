@@ -13,6 +13,7 @@ public interface NewGeneralHandler {
                 .name(aNew.getName())
                 .publishDate(String.valueOf(aNew.getPublishDate()))
                 .desc(aNew.getDescription())
+                .emailUser(aNew.getCreatedBy().getEmail())
                 .build();
     }
 

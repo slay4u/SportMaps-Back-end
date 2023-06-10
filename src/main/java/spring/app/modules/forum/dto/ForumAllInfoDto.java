@@ -17,5 +17,6 @@ public class ForumAllInfoDto {
     private String name;
     private String createDate;
     private String desc;
+    private String emailUser;
     private List<ForumComment> commentList;
 }
