@@ -27,4 +27,10 @@ public class SMarkerController {
     public int addMarker(@Valid @RequestBody SMarkerDto sMarkerDto) {
         return markerService.addMarker(sMarkerDto);
     }
+
+    @DeleteMapping("/delete")
+    @ResponseStatus(HttpStatus.OK)
+    public int deleteMarker(@Valid @RequestBody SMarkerDto sMarkerDto) {
+        return markerService.deleteMarker(sMarkerDto);
+    }
 }

@@ -15,6 +15,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import spring.app.modules.security.general.JwtAuthenticationFilter;
+import spring.app.modules.security.general.UserDataFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -47,6 +48,11 @@ public class SecurityConfiguration {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {
         return new JwtAuthenticationFilter();
+    }
+
+    @Bean
+    public UserDataFilter userDataFilter() {
+        return new UserDataFilter();
     }
 
     @Bean
@@ -85,6 +91,7 @@ public class SecurityConfiguration {
                 .authenticationEntryPoint(authEntryPoint);
 
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAfter(userDataFilter(), JwtAuthenticationFilter.class);
         return http.build();
     }
 }

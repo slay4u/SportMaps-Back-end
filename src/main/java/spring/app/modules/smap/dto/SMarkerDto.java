@@ -15,6 +15,7 @@ public class SMarkerDto {
     private String title;
     private String label;
     private Position position;
+    private String description;
 
     public static class Position {
         @NotNull

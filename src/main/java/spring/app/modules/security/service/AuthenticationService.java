@@ -91,17 +91,23 @@ public class AuthenticationService {
     }
 
     public Optional<org.springframework.security.core.userdetails.User> getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return Optional.empty();
+        }
         org.springframework.security.core.userdetails.User principal =
                 (org.springframework.security.core.userdetails.User)
-                        SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                        authentication.getPrincipal();
         return Optional.of(principal);
     }
 
 
-    public User getDomainUser() {
-        org.springframework.security.core.userdetails.User currentUser =
-                getCurrentUser().orElseThrow();
-        return findUserByEmail(currentUser.getUsername());
+    public Optional<User> getDomainUser() {
+        Optional<org.springframework.security.core.userdetails.User> currentUser = getCurrentUser();
+        if (currentUser.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(findUserByEmail(currentUser.get().getUsername()));
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshToken) {
@@ -140,7 +146,7 @@ public class AuthenticationService {
 
     private User findUserByEmail(String email) {
         Optional<User> user = userDao.findByEmail(email);
-        if(user.isEmpty()) {
+        if (user.isEmpty()) {
             throw new AuthenticationException("User not found with email " + email);
         }
         return user.get();
@@ -199,7 +205,7 @@ public class AuthenticationService {
     }
 
     public void checkAccess() {
-        User user = getDomainUser();
+        User user = getDomainUser().orElseThrow();
         if (user.getRole().isUser()) {
             throw new AuthenticationException("Access denied for user: " + user);
         }

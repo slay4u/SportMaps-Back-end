@@ -27,6 +27,7 @@ public class SMarker extends SPosition {
     private Animation animation;
     private String iconPath;
     private String textLocation;
+    private String description;
 
     private enum Animation {
         BOUNCE, DROP

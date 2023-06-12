@@ -51,7 +51,13 @@ public class SMarkerServiceImpl {
                 .label(e.getLabel())
                 .title(e.getTitle())
                 .position(new SMarkerDto.Position(e.getLat(), e.getLng()))
+                .description(e.getDescription())
                 .build()).toList();
+    }
+
+    public int deleteMarker(SMarkerDto sMarkerDto) {
+        markerDao.findByLngAndLat(sMarkerDto.getPosition().lng, sMarkerDto.getPosition().lat).ifPresent(markerDao::delete);
+        return 1;
     }
 
     private String getTextLocation(SMarkerDto.Position position) {
@@ -88,6 +94,7 @@ public class SMarkerServiceImpl {
         entity.setLat(dto.getPosition().lat);
         entity.setLng(dto.getPosition().lng);
         entity.setTextLocation(getTextLocation(dto.getPosition()));
+        entity.setDescription(dto.getDescription());
         return entity;
     }
 
