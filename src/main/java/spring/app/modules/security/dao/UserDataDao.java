@@ -5,9 +5,10 @@ import org.springframework.stereotype.Repository;
 import spring.app.modules.security.domain.User;
 import spring.app.modules.security.domain.UserData;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserDataDao extends JpaRepository<UserData, Long> {
-    Optional<UserData> getUserDataByUser(User user);
+    List<UserData> getUserDataByUser(User user);
 }

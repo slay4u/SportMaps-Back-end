@@ -43,7 +43,7 @@ public class UserDataService {
         }
         User user = wrapper.get();
         UserDataDto.User toSend = getUserWrapper(user);
-        Optional<UserData> userDataByUser = dataDao.getUserDataByUser(user);
+        Optional<UserData> userDataByUser = dataDao.getUserDataByUser(user).stream().findFirst();
         if (userDataByUser.isEmpty()) {
             return UserDataDto.builder().user(toSend).build();
         } else {
