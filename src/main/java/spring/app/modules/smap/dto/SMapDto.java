@@ -13,10 +13,6 @@ import lombok.extern.jackson.Jacksonized;
 @Jacksonized
 public class SMapDto {
     @NotNull
-    private float lat;
-    @NotNull
-    private float lng;
-    @NotNull
     private int zoom;
     @NotBlank
     private String type;

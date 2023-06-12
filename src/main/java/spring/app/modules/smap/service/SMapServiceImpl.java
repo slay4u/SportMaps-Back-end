@@ -3,9 +3,14 @@ package spring.app.modules.smap.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import spring.app.modules.commons.exception.AlreadyExistException;
 import spring.app.modules.commons.exception.AuthenticationException;
+import spring.app.modules.commons.exception.NotFoundException;
+import spring.app.modules.commons.util.convert.SimpleEntityConverter;
 import spring.app.modules.security.domain.User;
 import spring.app.modules.security.service.AuthenticationService;
+import spring.app.modules.smap.dao.SMapDao;
+import spring.app.modules.smap.domain.SMap;
 import spring.app.modules.smap.dto.SMapDto;
 
 import java.util.List;
@@ -16,33 +21,32 @@ import java.util.List;
 public class SMapServiceImpl implements SMapService{
 
     private final AuthenticationService authenticationService;
+    private final SMapDao mapDao;
 
     @Override
-    public int createMap(SMapDto dto) {
-        User user = authenticationService.getDomainUser();
-        if (user.getRole().isUser()) {
-            throw new AuthenticationException("Access denied for user: " + user);
+    public int createMainMap(SMapDto dto) {
+        authenticationService.checkAccess();
+        if (mapDao.findAll().isEmpty()) {
+            SMap map = SimpleEntityConverter.convert(dto, new SMap());
+            mapDao.save(map);
+        } else {
+            throw new AlreadyExistException("Main map exists");
         }
         return 0;
     }
 
     @Override
-    public int updateMap(SMapDto dto) {
+    public int updateMainMap(SMapDto dto) {
+        authenticationService.checkAccess();
+        SMap map = SimpleEntityConverter.convert(dto, new SMap());
+        SMap inDb = mapDao.findAll().stream().findAny().orElseThrow(() -> new NotFoundException("No main map found"));
+        mapDao.save(updateContent(map, inDb));
         return 0;
     }
 
-    @Override
-    public List<SMapDto> getAllMaps(int page) {
-        return null;
-    }
-
-    @Override
-    public SMapDto getById(int id) {
-        return null;
-    }
-
-    @Override
-    public void deleteById(int id) {
-
+    private SMap updateContent(SMap from, SMap to) {
+        to.setZoom(from.getZoom());
+        to.setType(from.getType());
+        return to;
     }
 }

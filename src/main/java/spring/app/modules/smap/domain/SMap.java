@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import spring.app.modules.commons.util.convert.BaseDto;
 
 import java.util.List;
 
@@ -16,10 +17,11 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@BaseDto(exclude = {"id"})
 public class SMap extends SPosition {
 
     private float zoom;
-    private Type mapType;
+    private Type type;
     @OneToMany(mappedBy = "sMap", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<SMarker> sMarkers;
 

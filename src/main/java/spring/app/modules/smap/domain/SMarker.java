@@ -26,6 +26,7 @@ public class SMarker extends SPosition {
     @Enumerated(EnumType.ORDINAL)
     private Animation animation;
     private String iconPath;
+    private String textLocation;
 
     private enum Animation {
         BOUNCE, DROP
