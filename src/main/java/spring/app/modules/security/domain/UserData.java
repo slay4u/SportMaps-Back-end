@@ -2,6 +2,7 @@ package spring.app.modules.security.domain;
 
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.DeviceType;
+import eu.bitwalker.useragentutils.OperatingSystem;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +25,7 @@ public class UserData {
     private LocalDateTime lastSeen;
     private String destinationUrl;
     @Enumerated(EnumType.ORDINAL)
-    private DeviceType type;
+    private OperatingSystem os;
     @Enumerated(EnumType.ORDINAL)
     private Browser browser;
     private String browserVersion;

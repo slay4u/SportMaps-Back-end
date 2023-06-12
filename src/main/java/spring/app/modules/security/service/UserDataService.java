@@ -2,6 +2,7 @@ package spring.app.modules.security.service;
 
 import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.DeviceType;
+import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,11 +50,7 @@ public class UserDataService {
             UserData userData = userDataByUser.get();
             return UserDataDto.builder()
                     .user(toSend)
-                    .lastSeen(userData.getLastSeen().toString())
-                    .lastUsedUrl(userData.getDestinationUrl())
-                    .device(userData.getType().getName())
-                    .browser(userData.getBrowser().getName())
-                    .browserVersion(userData.getBrowserVersion())
+                    .os(userData.getOs().getName())
                     .build();
         }
     }
@@ -69,13 +66,13 @@ public class UserDataService {
     }
 
     private boolean setTrackInfo(UserData info, UserAgent userAgent, String url, User user) {
-        DeviceType deviceType = userAgent.getOperatingSystem().getDeviceType();
+        OperatingSystem os = userAgent.getOperatingSystem();
         Browser browser = userAgent.getBrowser();
-        if (deviceType.equals(DeviceType.UNKNOWN) || browser.equals(Browser.UNKNOWN)) {
+        if (os.equals(OperatingSystem.UNKNOWN) || browser.equals(Browser.UNKNOWN)) {
            return false;
         }
         // Preserve data persistence
-        info.setType(deviceType);
+        info.setOs(os);
         info.setBrowser(browser);
         Optional<String> mV = Optional.of(userAgent.getBrowserVersion().getMajorVersion());
         info.setBrowserVersion(mV.orElse(""));

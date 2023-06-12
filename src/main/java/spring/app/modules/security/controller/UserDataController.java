@@ -18,7 +18,7 @@ public class UserDataController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public UserDataDto getSingleUserData() {
+    public UserDataDto getThisUserData() {
         return dataService.getThisUserData();
     }
 }

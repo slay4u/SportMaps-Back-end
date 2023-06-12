@@ -12,7 +12,7 @@ import lombok.extern.jackson.Jacksonized;
 public class UserDataDto {
     public String lastSeen;
     public String lastUsedUrl;
-    public String device;
+    public String os;
     public String browser;
     public String browserVersion;
     public User user;
