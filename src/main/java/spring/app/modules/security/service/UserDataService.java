@@ -12,7 +12,6 @@ import spring.app.modules.security.domain.User;
 import spring.app.modules.security.dto.UserDataDto;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -57,13 +56,12 @@ public class UserDataService {
     }
 
     private UserDataDto.User getUserWrapper(User user) {
-        final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         UserDataDto.User toSend = new UserDataDto.User();
         toSend.firstName = user.getFirstName();
         toSend.lastName = user.getLastName();
         toSend.email = user.getEmail();
         toSend.role = user.getRole().name();
-        toSend.createdAt = String.valueOf(LocalDateTime.parse(user.getCreated().toString(), dateFormat));
+        toSend.createdAt = user.getCreated().toString();
         return toSend;
     }
 
