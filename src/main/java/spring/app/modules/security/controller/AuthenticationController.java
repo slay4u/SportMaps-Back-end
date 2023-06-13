@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import spring.app.modules.security.domain.User;
 import spring.app.modules.security.dto.AuthenticationResponse;
 import spring.app.modules.security.dto.LoginRequest;
 import spring.app.modules.security.dto.RefreshTokenRequest;
@@ -46,5 +47,10 @@ public class AuthenticationController {
     public ResponseEntity<String> logout(@Valid @RequestBody RefreshTokenRequest refreshToken) {
         refreshTokenService.deleteRefreshToken(refreshToken.getRefreshToken());
         return ResponseEntity.status(HttpStatus.OK).body("Please, log in!");
+    }
+
+    @GetMapping("/byEmail/{email}")
+    public User getUserByEmail(@PathVariable String email) {
+        return authenticationService.getUserByEmail(email);
     }
 }

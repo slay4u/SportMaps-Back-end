@@ -59,8 +59,7 @@ public class AuthenticationService {
 
         userDao.save(user);
 
-        String token = generateVerificationToken(user);
-        return "http://localhost:8090/sport-maps/v1/auth/accountVerification/" + token;
+        return generateVerificationToken(user);
     }
 
     public void verifyToken(String token) {
@@ -124,6 +123,10 @@ public class AuthenticationService {
                                         jwtProvider.getJwtExpirationInMillis()),
                                 ZoneId.of("EET"))),
                 refreshToken.getRefreshToken());
+    }
+
+    public User getUserByEmail(String email) {
+        return findUserByEmail(email);
     }
 
     private String generateVerificationToken(User user) {
