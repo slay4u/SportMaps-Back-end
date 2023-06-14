@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
-import spring.app.modules.comments.eventComment.domain.EventComment;
+import spring.app.modules.comments.event.domain.EventComment;
 
 import java.util.List;
 

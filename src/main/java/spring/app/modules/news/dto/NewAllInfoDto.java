@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
-import spring.app.modules.comments.newsComment.domain.NewsComment;
+import spring.app.modules.comments.news.domain.NewsComment;
 
 import java.util.List;
 

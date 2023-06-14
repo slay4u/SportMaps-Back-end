@@ -4,6 +4,7 @@ import eu.bitwalker.useragentutils.Browser;
 import eu.bitwalker.useragentutils.OperatingSystem;
 import eu.bitwalker.useragentutils.UserAgent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import spring.app.modules.security.dao.UserDataDao;
 import spring.app.modules.security.domain.Status;
@@ -12,7 +13,11 @@ import spring.app.modules.security.domain.User;
 import spring.app.modules.security.dto.UserDataDto;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -42,18 +47,24 @@ public class UserDataService {
         }
         User user = wrapper.get();
         UserDataDto.User toSend = getUserWrapper(user);
-        // TODO:
-        Optional<UserData> userDataByUser = dataDao.getUserDataByUser(user).stream().findFirst();
-        if (userDataByUser.isEmpty()) {
+        Optional<UserData> udToSend = formData(user);
+        if (udToSend.isEmpty()) {
             return UserDataDto.builder().user(toSend).build();
         } else {
-            UserData userData = userDataByUser.get();
+            UserData userData = udToSend.get();
             return UserDataDto.builder()
                     .user(toSend)
-                    .os(userData.getOs().getName())
-                    .build();
+                    .browserVersion(userData.getBrowserVersion())
+                    .lastSeen(userData.getLastSeen().toString())
+                    .lastUsedUrl(userData.getDestinationUrl())
+                    .browser(userData.getBrowserVersion())
+                    .os(userData.getOs().getName()).build();
         }
     }
+
+    /*public List<UserDataDto> getUsersData() {
+
+    }*/
 
     private UserDataDto.User getUserWrapper(User user) {
         UserDataDto.User toSend = new UserDataDto.User();
@@ -63,6 +74,23 @@ public class UserDataService {
         toSend.role = user.getRole().name();
         toSend.createdAt = user.getCreated().toString();
         return toSend;
+    }
+
+    private Optional<UserData> formData(User user) {
+        List<UserData> userData = dataDao.getUserDataByUser(user, PageRequest.of(0, 100));
+        Optional<UserData> udWithLastSeen = userData.stream().filter(d -> d.getLastSeen() != null).max(Comparator.comparing(UserData::getLastSeen));
+        Optional<Map.Entry<String, Long>> urlWrapper = userData.stream().collect(Collectors.groupingBy(UserData::getDestinationUrl, Collectors.counting())).entrySet().stream().max(Map.Entry.comparingByValue());
+        if (udWithLastSeen.isPresent()) {
+            UserData ud = udWithLastSeen.get();
+            if (urlWrapper.isPresent()) {
+                String mostFrequentUrl = urlWrapper.get().getKey();
+                ud.setDestinationUrl(mostFrequentUrl);
+            } else {
+                ud.setDestinationUrl("");
+            }
+            return Optional.of(ud);
+        }
+        return Optional.empty();
     }
 
     private boolean setTrackInfo(UserData info, UserAgent userAgent, String url, User user) {

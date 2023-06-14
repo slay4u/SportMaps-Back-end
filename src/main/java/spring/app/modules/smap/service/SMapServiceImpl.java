@@ -20,12 +20,10 @@ import java.util.List;
 @AllArgsConstructor
 public class SMapServiceImpl implements SMapService{
 
-    private final AuthenticationService authenticationService;
     private final SMapDao mapDao;
 
     @Override
     public int createMainMap(SMapDto dto) {
-        authenticationService.checkAccess();
         if (mapDao.findAll().isEmpty()) {
             SMap map = SimpleEntityConverter.convert(dto, new SMap());
             mapDao.save(map);
@@ -37,7 +35,6 @@ public class SMapServiceImpl implements SMapService{
 
     @Override
     public int updateMainMap(SMapDto dto) {
-        authenticationService.checkAccess();
         SMap map = SimpleEntityConverter.convert(dto, new SMap());
         SMap inDb = mapDao.findAll().stream().findAny().orElseThrow(() -> new NotFoundException("No main map found"));
         mapDao.save(updateContent(map, inDb));

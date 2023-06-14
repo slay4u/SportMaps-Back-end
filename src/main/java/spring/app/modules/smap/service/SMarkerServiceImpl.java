@@ -29,7 +29,6 @@ public class SMarkerServiceImpl {
     private String apiKey;
 
     public int addMarker(SMarkerDto markerDto) {
-        authenticationService.checkAccess();
         if (!isValidGeo(markerDto.getPosition())) {
             throw new IllegalArgumentException("Marker's position is not valid");
         }

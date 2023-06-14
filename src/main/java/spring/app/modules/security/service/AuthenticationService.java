@@ -206,11 +206,4 @@ public class AuthenticationService {
         Matcher m = p.matcher(password);
         return !m.matches();
     }
-
-    public void checkAccess() {
-        User user = getDomainUser().orElseThrow();
-        if (user.getRole().isUser()) {
-            throw new AuthenticationException("Access denied for user: " + user);
-        }
-    }
 }

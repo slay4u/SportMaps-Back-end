@@ -14,21 +14,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import spring.app.modules.security.general.JwtAuthenticationFilter;
-import spring.app.modules.security.general.UserDataFilter;
+import spring.app.modules.security.general.filter.JwtAuthenticationFilter;
+import spring.app.modules.security.general.filter.UserDataFilter;
+
+import static spring.app.modules.security.general.SecurityDefinedConst.ENDPOINTS;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-    private static final String[] AUTH_WHITELIST = {
-            // -- Swagger UI v3 (OpenAPI)
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/swagger-ui.html/**",
-            "/swagger-ui/index.html",
-            "/swagger-ui/index.html/**"
-    };
 
     @Autowired
     @Qualifier("delegatedAuthenticationEntryPoint")
@@ -58,40 +51,22 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeHttpRequests()
-                .requestMatchers("/sport-maps/v1/auth/**").permitAll()
-                .requestMatchers("/sport-maps/v1/chat/**").permitAll()
-                .requestMatchers(HttpMethod.GET, AUTH_WHITELIST).permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/news/new/**").hasAnyAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/news/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/news/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/news/photo/upload/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/events/new/**").hasAnyAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/events/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/events/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/events/photo/upload/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/coaches/new/**").hasAnyAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/coaches/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/coaches/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.POST,"/sport-maps/v1/coaches/photo/upload/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/news-comments/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/news-comments/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/event-comments/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/event-comments/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/forum-comments/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/forum-comments/delete/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,"/sport-maps/v1/forums/update/**").hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,"/sport-maps/v1/forums/delete/**").hasAuthority("ADMIN")
+                .requestMatchers(ENDPOINTS.get("ALL")).permitAll()
+                .requestMatchers(HttpMethod.GET, ENDPOINTS.get("GET")).permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, ENDPOINTS.get("OPTIONS")).permitAll()
+                .requestMatchers(HttpMethod.POST,ENDPOINTS.get("POST")).hasAnyAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT,ENDPOINTS.get("PUT")).hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,ENDPOINTS.get("DELETE")).hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
+                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(userDataFilter(), JwtAuthenticationFilter.class)
                 .exceptionHandling()
                 .authenticationEntryPoint(authEntryPoint);
 
-        http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(userDataFilter(), JwtAuthenticationFilter.class);
         return http.build();
     }
 }
