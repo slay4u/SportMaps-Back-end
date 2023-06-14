@@ -1,7 +1,5 @@
 package spring.app.modules.security.general;
 
-import java.util.Map;
-
 public final class SecurityDefinedConst {
 
     // TODO: better naming for endpoints.
@@ -11,12 +9,12 @@ public final class SecurityDefinedConst {
     // We already use POST method for this one. No need for /new.
     // Same for delete, like "/sport-maps/v1/news/delete/**" -> "/sport-maps/v1/news" with DELETE method.
 
-    private static final String[] ALL = {
+    public static final String[] ALL = {
             "/sport-maps/v1/auth/**",
             "/sport-maps/v1/chat/**"
     };
 
-    private static final String[] GET = {
+    public static final String[] GET = {
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**",
             "/swagger-ui/**",
@@ -26,7 +24,7 @@ public final class SecurityDefinedConst {
             "/swagger-ui/index.html/**"
     };
 
-    private static final String[] POST = {
+    public static final String[] POST = {
             "/sport-maps/v1/news/new/**",
             "/sport-maps/v1/news/photo/upload/**",
             "/sport-maps/v1/events/new/**",
@@ -36,7 +34,7 @@ public final class SecurityDefinedConst {
             "/sport-maps/v1/markers/add"
     };
 
-    private static final String[] PUT = {
+    public static final String[] PUT = {
             "/sport-maps/v1/news/update/**",
             "/sport-maps/v1/events/update/**",
             "/sport-maps/v1/coaches/update/**",
@@ -46,11 +44,11 @@ public final class SecurityDefinedConst {
             "/sport-maps/v1/forums/update/**"
     };
 
-    private static final String[] OPTIONS = {
+    public static final String[] OPTIONS = {
             "/**"
     };
 
-    private static final String[] DELETE = {
+    public static final String[] DELETE = {
             "/sport-maps/v1/news/delete/**",
             "/sport-maps/v1/events/delete/**",
             "/sport-maps/v1/coaches/delete/**",
@@ -60,13 +58,4 @@ public final class SecurityDefinedConst {
             "/sport-maps/v1/forums/delete/**",
             "/sport-maps/v1/markers/delete"
     };
-
-    public static final Map<String, String[]> ENDPOINTS = Map.of(
-            "GET", GET,
-            "ALL", ALL,
-            "POST", POST,
-            "PUT", PUT,
-            "OPTIONS", OPTIONS,
-            "DELETE", DELETE
-    );
 }

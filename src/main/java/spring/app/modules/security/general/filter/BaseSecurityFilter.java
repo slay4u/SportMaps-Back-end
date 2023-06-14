@@ -19,6 +19,6 @@ public class BaseSecurityFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
-        return Arrays.stream(SecurityDefinedConst.ENDPOINTS.get("ALL")).anyMatch(e -> path.contains(e.replaceAll("[*]+", ""))) || request.getMethod().equals("OPTIONS");
+        return Arrays.stream(SecurityDefinedConst.ALL).anyMatch(e -> path.contains(e.replaceAll("[*]+", ""))) || request.getMethod().equals("OPTIONS");
     }
 }

@@ -14,10 +14,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import spring.app.modules.security.general.SecurityDefinedConst;
 import spring.app.modules.security.general.filter.JwtAuthenticationFilter;
 import spring.app.modules.security.general.filter.UserDataFilter;
-
-import static spring.app.modules.security.general.SecurityDefinedConst.ENDPOINTS;
 
 @Configuration
 @EnableWebSecurity
@@ -51,12 +50,12 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable().authorizeHttpRequests()
-                .requestMatchers(ENDPOINTS.get("ALL")).permitAll()
-                .requestMatchers(HttpMethod.GET, ENDPOINTS.get("GET")).permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, ENDPOINTS.get("OPTIONS")).permitAll()
-                .requestMatchers(HttpMethod.POST,ENDPOINTS.get("POST")).hasAnyAuthority("ADMIN")
-                .requestMatchers(HttpMethod.PUT,ENDPOINTS.get("PUT")).hasAuthority("ADMIN")
-                .requestMatchers(HttpMethod.DELETE,ENDPOINTS.get("DELETE")).hasAuthority("ADMIN")
+                .requestMatchers(SecurityDefinedConst.ALL).permitAll()
+                .requestMatchers(HttpMethod.GET, SecurityDefinedConst.GET).permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, SecurityDefinedConst.OPTIONS).permitAll()
+                .requestMatchers(HttpMethod.POST, SecurityDefinedConst.POST).hasAnyAuthority("ADMIN")
+                .requestMatchers(HttpMethod.PUT, SecurityDefinedConst.PUT).hasAuthority("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, SecurityDefinedConst.DELETE).hasAuthority("ADMIN")
                 .anyRequest()
                 .authenticated()
                 .and()
