@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.jackson.Jacksonized;
 import org.springframework.format.annotation.DateTimeFormat;
-import spring.app.modules.commons.util.LocalDateTimeDeserializer;
+import spring.app.modules.commons.io.LocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 

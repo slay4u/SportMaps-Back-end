@@ -4,16 +4,19 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import spring.app.modules.commons.controller.BaseRestController;
 import spring.app.modules.forum.dto.ForumAllInfoDto;
 import spring.app.modules.forum.dto.ForumCreateDto;
 import spring.app.modules.forum.service.ForumService;
 
 import java.util.List;
 
+import static spring.app.modules.commons.controller.BaseRestController.BASE_URL;
+
 @RestController
-@RequestMapping("/sport-maps/v1/forums")
+@RequestMapping(BASE_URL + "forums")
 @AllArgsConstructor
-public class ForumController {
+public class ForumController extends BaseRestController {
     private final ForumService forumService;
 
     @PostMapping("/new")

@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import spring.app.modules.security.service.AuthenticationService;
 import spring.app.modules.smap.dao.SMarkerDao;
 import spring.app.modules.smap.domain.SMarker;
 import spring.app.modules.smap.dto.SMarkerDto;
@@ -22,10 +21,9 @@ import java.util.regex.Pattern;
 @Slf4j
 public class SMarkerServiceImpl {
 
-    private final AuthenticationService authenticationService;
     private final SMarkerDao markerDao;
     private final RestTemplate googleApi;
-    @Value("${google-api-key}")
+    @Value("${google.api.key}")
     private String apiKey;
 
     public int addMarker(SMarkerDto markerDto) {

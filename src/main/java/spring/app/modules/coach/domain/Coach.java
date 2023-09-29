@@ -2,52 +2,56 @@ package spring.app.modules.coach.domain;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.MapKeyColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import spring.app.modules.commons.domain.ImageData;
-import spring.app.modules.commons.domain.SportType;
+import org.hibernate.Length;
+import spring.app.modules.commons.domain.Identifier;
+import spring.app.modules.commons.util.convert.BaseDto;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Entity
-@Table(name = "coaches")
+@Table(uniqueConstraints={
+        @UniqueConstraint(columnNames = {"first_name", "last_name", "dob"})
+})
 @Data
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Coach {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_coach")
-    private Long idCoach;
-    @Column(name = "first_name", nullable = false, length = 50)
+@BaseDto(exclude = {"id"})
+public class Coach extends Identifier {
+    @Column(nullable = false, length = 50)
     private String firstName;
-    @Column(name = "last_name", nullable = false, length = 50)
+    @Column(nullable = false, length = 50)
     private String lastName;
-    @Column(name = "age", nullable = false, length = 2)
-    private Long age;
-    @Column(name = "experience", nullable = false, length = 2)
-    private Long experience;
-    @Column(name = "price", nullable = false, length = 10)
-    private Double price;
-    @Lob
+    @Column(nullable = false, length = 2)
+    private LocalDate dob;
+    // TODO:
+    @Column(nullable = false, length = 10)
+    private BigDecimal price;
+    @Column(length = Length.LONG32)
     private String description;
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    @Column(name = "sport_type")
-    private SportType sportType;
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "type_exp_mapping",
+            joinColumns = {@JoinColumn(name = "coach_id", referencedColumnName = "id")})
+    @MapKeyColumn(name = "sport_type")
+    @Column(name = "experience", nullable = false)
+    private Map<String, Long> sports;
     @OneToMany(mappedBy = "coach", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ImageData> imageDataList;

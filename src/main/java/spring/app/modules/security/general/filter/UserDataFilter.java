@@ -21,8 +21,7 @@ public class UserDataFilter extends BaseSecurityFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Status status = dataService.writeAction(UserAgent.parseUserAgentString(request.getHeader("User-Agent")), request.getRequestURI());
-        // Edit if using Postman
-        if (status.isOk() || status.isAuthRequired()) {
+        if (status.isOk() || status.isUnknown()) {
             filterChain.doFilter(request, response);
         }
     }

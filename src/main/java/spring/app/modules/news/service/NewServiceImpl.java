@@ -7,10 +7,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import spring.app.modules.comments.news.dao.NewsCommentDao;
 import spring.app.modules.comments.news.domain.NewsComment;
-import spring.app.modules.commons.domain.ImageData;
+import spring.app.modules.imgs.domain.BaseImageData;
 import spring.app.modules.commons.exception.AlreadyExistException;
 import spring.app.modules.commons.exception.NotFoundException;
-import spring.app.modules.commons.repository.ImageDataDao;
+import spring.app.modules.imgs.dao.BaseImageDataDao;
 import spring.app.modules.news.dao.NewDao;
 import spring.app.modules.news.domain.New;
 import spring.app.modules.news.dto.NewAllInfoDto;
@@ -34,12 +34,12 @@ import java.util.Optional;
 public class NewServiceImpl implements NewService, NewGeneralHandler {
     private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final NewDao newDao;
-    private final ImageDataDao imageDataDao;
+    private final BaseImageDataDao imageDataDao;
     private final String FOLDER_PATH;
     private final NewsCommentDao newsCommentDao;
     private final UserDao userDao;
 
-    public NewServiceImpl(NewDao newDao, ImageDataDao imageDataDao, NewsCommentDao newsCommentDao, UserDao userDao) throws URISyntaxException {
+    public NewServiceImpl(NewDao newDao, BaseImageDataDao imageDataDao, NewsCommentDao newsCommentDao, UserDao userDao) throws URISyntaxException {
         this.newDao = newDao;
         this.imageDataDao = imageDataDao;
         this.FOLDER_PATH = getFOLDER_PATH();
@@ -100,12 +100,11 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
         validatePresentImage(file.getOriginalFilename(), filePath);
         New byId = getById(id);
 
-        imageDataDao.save(ImageData
+        imageDataDao.save(BaseImageData
                 .builder()
                 .name(file.getOriginalFilename())
                 .type(file.getContentType())
                 .filePath(filePath)
-                .aNew(byId)
                 .build()
         );
 
@@ -150,10 +149,10 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     }
 
     private void validatePresentImage(String name, String filePath) {
-        Optional<ImageData> result = imageDataDao.findByNameAndFilePath(name, filePath);
+        /*Optional<BaseImageData> result = imageDataDao.findByNameAndFilePath(name, filePath);
         if (result.isPresent()) {
             throw new AlreadyExistException("Image already exists!");
-        }
+        }*/
     }
 
     private New updateContent(New aNew, New resultNew) {
@@ -180,13 +179,14 @@ public class NewServiceImpl implements NewService, NewGeneralHandler {
     }
 
     private byte[] fetchImage(Long id) throws IOException {
-        List<ImageData> allByNewId = imageDataDao.findAllByANewId(id);
+        /*List<BaseImageData> allByNewId = imageDataDao.findAllByANewId(id);
         if (allByNewId.isEmpty()) {
             return null;
         }
-        ImageData singleImage = allByNewId.stream().findFirst().orElseThrow();
+        BaseImageData singleImage = allByNewId.stream().findFirst().orElseThrow();
         String imagePath = singleImage.getFilePath();
-        return Files.readAllBytes(new File(imagePath).toPath());
+        return Files.readAllBytes(new File(imagePath).toPath());*/
+        return null;
     }
 
     private List<NewsComment> fetchNewsComments(Long id) {

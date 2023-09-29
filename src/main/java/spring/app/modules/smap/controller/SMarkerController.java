@@ -4,15 +4,18 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import spring.app.modules.commons.controller.BaseRestController;
 import spring.app.modules.smap.dto.SMarkerDto;
 import spring.app.modules.smap.service.SMarkerServiceImpl;
 
 import java.util.List;
 
+import static spring.app.modules.commons.controller.BaseRestController.BASE_URL;
+
 @RestController
-@RequestMapping("/sport-maps/v1/markers")
+@RequestMapping(BASE_URL + "markers")
 @AllArgsConstructor
-public class SMarkerController {
+public class SMarkerController extends BaseRestController {
 
     private final SMarkerServiceImpl markerService;
 

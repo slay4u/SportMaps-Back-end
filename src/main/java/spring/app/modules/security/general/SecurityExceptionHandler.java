@@ -15,7 +15,7 @@ public class SecurityExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({ InsufficientAuthenticationException.class })
     @ResponseBody
-    public ResponseEntity<RestError> handleAuthenticationException(Exception ex) {
+    public ResponseEntity<RestError> handleAuthenticationException(InsufficientAuthenticationException ex) {
         log.warn("InsufficientAuthenticationException thrown: {}", ex.getMessage());
         RestError re = new RestError(HttpStatus.UNAUTHORIZED.toString(), ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(re);

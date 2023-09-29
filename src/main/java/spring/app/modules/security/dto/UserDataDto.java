@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.jackson.Jacksonized;
+import spring.app.modules.commons.other.PersonDto;
 
 @Getter
 @Setter
@@ -17,9 +18,7 @@ public class UserDataDto {
     public String browserVersion;
     public User user;
 
-    public static class User {
-        public String firstName;
-        public String lastName;
+    public static class User extends PersonDto {
         public String email;
         public String createdAt;
         public String role;

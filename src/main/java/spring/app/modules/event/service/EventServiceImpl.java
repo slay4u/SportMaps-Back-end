@@ -7,15 +7,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import spring.app.modules.comments.event.dao.EventCommentDao;
 import spring.app.modules.comments.event.domain.EventComment;
-import spring.app.modules.commons.domain.ImageData;
-import spring.app.modules.commons.domain.SportType;
+import spring.app.modules.commons.constant.SportType;
+import spring.app.modules.commons.exception.NotFoundException;
+import spring.app.modules.event.dao.EventDao;
 import spring.app.modules.event.domain.Event;
 import spring.app.modules.event.dto.EventAllInfoDto;
 import spring.app.modules.event.dto.EventCreateDto;
-import spring.app.modules.commons.exception.AlreadyExistException;
-import spring.app.modules.commons.exception.NotFoundException;
-import spring.app.modules.event.dao.EventDao;
-import spring.app.modules.commons.repository.ImageDataDao;
+import spring.app.modules.imgs.dao.BaseImageDataDao;
+import spring.app.modules.imgs.domain.BaseImageData;
 import spring.app.modules.security.dao.UserDao;
 import spring.app.modules.security.domain.User;
 
@@ -23,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,13 +32,13 @@ import java.util.Optional;
 @Transactional
 public class EventServiceImpl implements EventService, EventGeneralHandler {
     private final int PAGE_ELEMENTS_AMOUNT = 15;
-    private final ImageDataDao imageDataDao;
+    private final BaseImageDataDao imageDataDao;
     private final String FOLDER_PATH;
     private final EventDao eventDao;
     private final EventCommentDao eventCommentDao;
     private final UserDao userDao;
 
-    public EventServiceImpl(EventDao eventDao, ImageDataDao imageDataDao, EventCommentDao eventCommentDao, UserDao userDao) throws URISyntaxException {
+    public EventServiceImpl(EventDao eventDao, BaseImageDataDao imageDataDao, EventCommentDao eventCommentDao, UserDao userDao) throws URISyntaxException {
         this.eventDao = eventDao;
         this.eventCommentDao = eventCommentDao;
         this.imageDataDao = imageDataDao;
@@ -103,12 +101,11 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
         validatePresentImage(file.getOriginalFilename(), filePath);
         Event byId = getById(id);
 
-        imageDataDao.save(ImageData
+        imageDataDao.save(BaseImageData
                 .builder()
                 .name(file.getOriginalFilename())
                 .type(file.getContentType())
                 .filePath(filePath)
-                .event(byId)
                 .build()
         );
 
@@ -175,10 +172,10 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     }
 
     private void validatePresentImage(String name, String filePath) {
-        Optional<ImageData> result = imageDataDao.findByNameAndFilePath(name, filePath);
+        /*Optional<BaseImageData> result = imageDataDao.findByNameAndFilePath(name, filePath);
         if (result.isPresent()) {
             throw new AlreadyExistException("Image already exists!");
-        }
+        }*/
     }
 
     private Event updateContent(Event event, Event resultEvent) {
@@ -207,13 +204,14 @@ public class EventServiceImpl implements EventService, EventGeneralHandler {
     }
 
     private byte[] fetchImage(Long id) throws IOException {
-        List<ImageData> allByEventId = imageDataDao.findAllByEventId(id);
+        /*List<BaseImageData> allByEventId = imageDataDao.findAllByEventId(id);
         if (allByEventId.isEmpty()) {
             return null;
         }
-        ImageData singleImage = allByEventId.stream().findFirst().orElseThrow();
+        BaseImageData singleImage = allByEventId.stream().findFirst().orElseThrow();
         String imagePath = singleImage.getFilePath();
-        return Files.readAllBytes(new File(imagePath).toPath());
+        return Files.readAllBytes(new File(imagePath).toPath());*/
+        return null;
     }
 
     private List<EventComment> fetchEventComments(Long id) {

@@ -18,18 +18,20 @@ import org.springframework.web.multipart.MultipartFile;
 import spring.app.modules.coach.dto.CoachAllInfoDto;
 import spring.app.modules.coach.dto.CoachCreateDto;
 import spring.app.modules.coach.service.CoachService;
+import spring.app.modules.commons.controller.BaseRestController;
 
-import java.io.IOException;
 import java.util.List;
 
+import static spring.app.modules.commons.controller.BaseRestController.BASE_URL;
+
 @RestController
-@RequestMapping("/sport-maps/v1/coaches")
+@RequestMapping(BASE_URL + "coaches")
 @AllArgsConstructor
-public class CoachController {
+public class CoachController extends BaseRestController {
     private final CoachService coachService;
 
     @PostMapping("/new")
-    @ResponseStatus(HttpStatus.CREATED)
+    @ResponseStatus(HttpStatus.OK)
     public int createCoach(@Valid @RequestBody CoachCreateDto requestToSave) {
         return coachService.createCoach(requestToSave);
     }
@@ -62,7 +64,7 @@ public class CoachController {
     @PostMapping("/photo/upload/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> uploadImage(@PathVariable("id") Long id,
-                                         @RequestParam ("image") MultipartFile file) throws IOException {
+                                         @RequestParam ("image") MultipartFile file) {
         String uploadImage = coachService.uploadImage(file, id);
         return ResponseEntity.ok(uploadImage);
     }

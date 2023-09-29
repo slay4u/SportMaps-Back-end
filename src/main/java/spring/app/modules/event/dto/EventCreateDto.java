@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Builder
 @Jacksonized
 public class EventCreateDto {
+    // TODO: ??????????????????
     @NotBlank(message = "Name can't be empty")
     private String name;
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)

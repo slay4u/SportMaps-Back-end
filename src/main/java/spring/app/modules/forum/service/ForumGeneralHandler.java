@@ -2,8 +2,6 @@ package spring.app.modules.forum.service;
 
 import spring.app.modules.forum.domain.Forum;
 import spring.app.modules.forum.dto.ForumAllInfoDto;
-import spring.app.modules.news.domain.New;
-import spring.app.modules.news.dto.NewAllInfoDto;
 
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,10 +1,10 @@
-package spring.app.modules.commons.util;
+package spring.app.modules.commons.io;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import spring.app.modules.commons.exception.LocalDateTimeParseException;
+import spring.app.modules.commons.exception.SerializationParseException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -31,7 +31,7 @@ public class LocalDateTimeDeserializer extends StdDeserializer<LocalDateTime> {
         try {
             parsedLocalDateTime = LocalDateTime.parse(node.asText(), dateFormat);
         } catch (DateTimeParseException e) {
-            throw new LocalDateTimeParseException("LocalDate field deserialization failed! Either empty or invalid pattern!");
+            throw new SerializationParseException("LocalDate field deserialization failed! Either empty or invalid pattern!");
         }
         return parsedLocalDateTime;
     }

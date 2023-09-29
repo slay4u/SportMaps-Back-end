@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import spring.app.modules.commons.controller.BaseRestController;
 import spring.app.modules.security.domain.User;
 import spring.app.modules.security.dto.AuthenticationResponse;
 import spring.app.modules.security.dto.LoginRequest;
@@ -13,10 +14,12 @@ import spring.app.modules.security.dto.RegisterRequest;
 import spring.app.modules.security.service.AuthenticationService;
 import spring.app.modules.security.service.RefreshTokenService;
 
+import static spring.app.modules.commons.controller.BaseRestController.BASE_URL;
+
 @RestController
-@RequestMapping("/sport-maps/v1/auth")
+@RequestMapping(BASE_URL + "auth")
 @RequiredArgsConstructor
-public class AuthenticationController {
+public class AuthenticationController extends BaseRestController {
     private final AuthenticationService authenticationService;
     private final RefreshTokenService refreshTokenService;
 

@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import spring.app.modules.commons.constant.SystemConstants;
 
 import java.time.Instant;
 
@@ -31,7 +32,7 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "email", nullable = false, unique = true)
-    @Email(regexp = "^(?=.{1,32}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$")
+    @Email(regexp = SystemConstants.EMAIL_REGEXP)
     private String email;
     private Instant created;
     private boolean enabled;

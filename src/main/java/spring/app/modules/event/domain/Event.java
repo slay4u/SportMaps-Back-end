@@ -1,18 +1,26 @@
 package spring.app.modules.event.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import spring.app.modules.commons.domain.ImageData;
-import spring.app.modules.commons.domain.SportType;
+import spring.app.modules.pd.st.SportType;
 import spring.app.modules.security.domain.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "events")
@@ -34,14 +42,9 @@ public class Event {
     @Lob
     private String description;
 
-    @Enumerated(EnumType.STRING)
     @NotNull
     @Column(name = "sport_type", nullable = false)
     private SportType sportType;
-
-    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JsonManagedReference
-    private List<ImageData> imageDataList;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import spring.app.modules.commons.exception.AuthenticationException;
+import spring.app.modules.commons.validation.PersonDtoValidator;
 import spring.app.modules.security.dao.UserDao;
 import spring.app.modules.security.dao.VerificationTokenDao;
 import spring.app.modules.security.domain.VerificationToken;
@@ -25,11 +26,8 @@ import spring.app.modules.security.dto.RegisterRequest;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -41,13 +39,13 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
+    private final PersonDtoValidator personValidator;
 
     @Value("${signup.token.time}")
     private Long tokenExpiration;
 
     public String signup(RegisterRequest registerRequest) {
-        validateNewUser(registerRequest);
-        validateExistingUser(registerRequest);
+        //personValidator.validateNewUser(registerRequest);
         User user = new User();
         user.setFirstName(registerRequest.getFirstName());
         user.setLastName(registerRequest.getLastName());
@@ -165,45 +163,5 @@ public class AuthenticationService {
             throw new InsufficientAuthenticationException("Credentials are not valid!");
         }
         return authenticate;
-    }
-
-    private void validateExistingUser(RegisterRequest registerRequest) {
-        String toCheck = registerRequest.getEmail();
-        Optional<User> byEmail = userDao.findByEmail(toCheck);
-        if(byEmail.isPresent()) {
-            throw new AuthenticationException("User with email " + toCheck + " already exists!");
-        }
-    }
-
-    private void validateNewUser(RegisterRequest registerRequest) {
-        if (registerRequest.getFirstName().isBlank() || Objects.isNull(registerRequest.getFirstName())
-                || isValidUsername(registerRequest.getFirstName())) {
-            throw new IllegalArgumentException("User's first name is not valid");
-        }
-        if (registerRequest.getLastName().isBlank() || Objects.isNull(registerRequest.getLastName())
-                || isValidUsername(registerRequest.getLastName())) {
-            throw new IllegalArgumentException("User's last name is not valid");
-        }
-        if (registerRequest.getEmail().isBlank() || Objects.isNull(registerRequest.getEmail())) {
-            throw new IllegalArgumentException("User's email is not valid");
-        }
-        if (registerRequest.getPassword().isBlank() || Objects.isNull(registerRequest.getPassword())
-                || isValidPassword(registerRequest.getPassword())) {
-            throw new IllegalArgumentException("User's password is not valid");
-        }
-    }
-
-    private boolean isValidUsername(String name) {
-        String regex = "^(?=.{2,30}$)[A-Z][a-zA-Z]*(?:\\h+[A-Z][a-zA-Z]*)*$";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(name);
-        return !m.matches();
-    }
-
-    private boolean isValidPassword(String password) {
-        String regex = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[{}:#@!;\\[_'`\\],\".\\/~?*\\-$^+=\\\\<>]).{8,20}$";
-        Pattern p = Pattern.compile(regex);
-        Matcher m = p.matcher(password);
-        return !m.matches();
     }
 }

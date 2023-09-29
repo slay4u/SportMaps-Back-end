@@ -68,8 +68,8 @@ public class UserDataService {
 
     private UserDataDto.User getUserWrapper(User user) {
         UserDataDto.User toSend = new UserDataDto.User();
-        toSend.firstName = user.getFirstName();
-        toSend.lastName = user.getLastName();
+        toSend.setFirstName(user.getFirstName());
+        toSend.setLastName(user.getLastName());
         toSend.email = user.getEmail();
         toSend.role = user.getRole().name();
         toSend.createdAt = user.getCreated().toString();

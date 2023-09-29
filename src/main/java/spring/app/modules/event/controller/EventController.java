@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import spring.app.modules.commons.controller.BaseRestController;
 import spring.app.modules.event.dto.EventAllInfoDto;
 import spring.app.modules.event.dto.EventCreateDto;
 import spring.app.modules.event.service.EventService;
@@ -22,10 +23,12 @@ import spring.app.modules.event.service.EventService;
 import java.io.IOException;
 import java.util.List;
 
+import static spring.app.modules.commons.controller.BaseRestController.BASE_URL;
+
 @RestController
-@RequestMapping("/sport-maps/v1/events")
+@RequestMapping(BASE_URL + "events")
 @AllArgsConstructor
-public class EventController {
+public class EventController extends BaseRestController {
     private final EventService eventService;
 
     @PostMapping("/new")
