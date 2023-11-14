@@ -3,7 +3,7 @@ spring:
   # Database
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/spring
+    url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
     password: 123654
   # JPA properties
@@ -33,3 +33,4 @@ sport:
       dev-url: http://localhost:8090
 
       prod-url: http://localhost:8090
+google-api-key: AIzaSyCqKqPQNYTDZ-6YLP8UQwCeKBrBOWPLg6M
