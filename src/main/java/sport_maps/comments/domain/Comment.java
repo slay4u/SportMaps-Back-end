@@ -1,6 +1,5 @@
 package sport_maps.comments.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -24,10 +23,9 @@ public abstract class Comment {
     private LocalDateTime date;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private User createdBy;
+    private User author;
 
     @NonNull
     public Long getId() {
@@ -57,12 +55,12 @@ public abstract class Comment {
     }
 
     @NonNull
-    public User getCreatedBy() {
-        return createdBy;
+    public User getAuthor() {
+        return author;
     }
 
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     @Override
@@ -76,7 +74,7 @@ public abstract class Comment {
         if (!getId().equals(comment.getId())) return false;
         if (!getDate().equals(comment.getDate())) return false;
         if (!getText().equals(comment.getText())) return false;
-        return getCreatedBy().equals(comment.getCreatedBy());
+        return getAuthor().equals(comment.getAuthor());
     }
 
     @Override

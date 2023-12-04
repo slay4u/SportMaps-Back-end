@@ -1,4 +1,4 @@
-package sport_maps.commons.domain;
+package sport_maps.image.domain;
 
 import jakarta.persistence.*;
 import org.hibernate.proxy.HibernateProxy;

@@ -1,36 +1,32 @@
-# Spring Boot configuration
 spring:
-  # Database
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: 123654
-  # JPA properties
+    url: jdbc:postgresql://localhost:5432/your-db
+    username: your username
+    password: your password
   jpa:
     hibernate:
       ddl-auto: create-drop
-    show-sql: true
-    database: postgresql
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: your username
+    password: your password
     properties:
-      hibernate:
-        format_sql: true
-  application:
-    name: app
-# Server configuration
-server:
-  port: 8090
-jwt:
-  expiration:
-    time: 9000000000000000
-signup:
-  token:
-    time: 9000000000000000
-sport:
-  maps:
-    openapi:
-      dev-url: http://localhost:8090
-
-      prod-url: http://localhost:8090
-google-api-key: AIzaSyCqKqPQNYTDZ-6YLP8UQwCeKBrBOWPLg6M
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: true
+time:
+  jwt: 5
+  refresh: 5
+  signup: 5
+openapi:
+  dev-url: development url
+  prod-url: production url
+google-api-key: your-key
+task:
+  purge: schedule in cron

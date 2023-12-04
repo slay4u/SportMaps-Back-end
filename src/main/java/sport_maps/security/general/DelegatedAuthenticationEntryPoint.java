@@ -9,6 +9,8 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.io.IOException;
+
 @Component("delegatedAuthenticationEntryPoint")
 public class DelegatedAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Autowired
@@ -16,7 +18,10 @@ public class DelegatedAuthenticationEntryPoint implements AuthenticationEntryPoi
     private HandlerExceptionResolver resolver;
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) {
-        resolver.resolveException(request, response, null, authException);
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException e) throws IOException {
+        if (response.getStatus() == HttpServletResponse.SC_NOT_ACCEPTABLE) {
+            response.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE);
+        }
+        resolver.resolveException(request, response, null, e);
     }
 }

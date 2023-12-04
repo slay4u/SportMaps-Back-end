@@ -1,6 +1,8 @@
 package sport_maps.coach.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import sport_maps.coach.dto.CoachDto;
 import sport_maps.coach.dto.CoachSaveDto;
 import sport_maps.coach.service.CoachService;
@@ -18,9 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
-import static org.springframework.http.HttpStatus.OK;
 import static sport_maps.commons.BaseController.BASE_URL;
 
 @RestController
@@ -33,46 +33,40 @@ public class CoachController {
     }
 
     @PostMapping
-    @ResponseStatus(OK)
-    public int createCoach(@Valid @RequestBody CoachSaveDto requestToSave) {
-        return service.createCoach(requestToSave);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createCoach(@Valid @RequestBody CoachSaveDto requestToSave) {
+        service.createCoach(requestToSave);
     }
 
-    @GetMapping(params = {"page_num"})
-    @ResponseStatus(OK)
-    public List<CoachDto> getAllCoaches(int page_num) {
-        return service.getAllCoaches(page_num);
+    @GetMapping(params = {"page"})
+    @ResponseStatus(HttpStatus.OK)
+    public Page<CoachDto> getAllCoaches(@RequestParam("page") int page) {
+        return service.getAllCoaches(page);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.OK)
     public CoachDto getCoachById(@PathVariable("id") Long id) {
         return service.getCoachById(id);
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(OK)
-    public int updateCoach(@PathVariable("id") Long id, @Valid @RequestBody CoachSaveDto requestToSave) {
-        return service.updateCoach(id, requestToSave);
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateCoach(@PathVariable("id") Long id, @Valid @RequestBody CoachSaveDto requestToSave) {
+        service.updateCoach(id, requestToSave);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCoach(@PathVariable("id") Long id) {
         service.deleteById(id);
     }
 
     @PostMapping("/upload/{id}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> uploadImage(@PathVariable("id") Long id,
-                                         @RequestParam ("image") MultipartFile file) throws IOException {
+                                         @RequestParam("image") MultipartFile file) throws IOException {
         String uploadImage = service.uploadImage(file, id);
         return ResponseEntity.ok(uploadImage);
-    }
-
-    @GetMapping("/count")
-    @ResponseStatus(OK)
-    public double getTotalPagesCount() {
-        return service.getTotalPagesCount();
     }
 }

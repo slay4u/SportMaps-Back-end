@@ -11,8 +11,10 @@ public class RefreshToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String token;
-    private Instant createdDate;
+    @Column(nullable = false)
+    private Instant expiryDate;
 
     @NonNull
     public Long getId() {
@@ -33,12 +35,12 @@ public class RefreshToken {
     }
 
     @NonNull
-    public Instant getCreatedDate() {
-        return createdDate;
+    public Instant getExpiryDate() {
+        return expiryDate;
     }
 
-    public void setCreatedDate(Instant createdDate) {
-        this.createdDate = createdDate;
+    public void setExpiryDate(Instant expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     @Override
@@ -51,7 +53,7 @@ public class RefreshToken {
         RefreshToken that = (RefreshToken) o;
         if(!getId().equals(that.getId())) return false;
         if(!getToken().equals(that.getToken())) return false;
-        return getCreatedDate().equals(that.getCreatedDate());
+        return getExpiryDate().equals(that.getExpiryDate());
     }
 
     @Override

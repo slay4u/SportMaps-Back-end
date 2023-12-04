@@ -1,6 +1,8 @@
 package sport_maps.nef.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import sport_maps.nef.dto.NewsDto;
 import sport_maps.nef.dto.NewsSaveDto;
 import sport_maps.nef.service.NewsService;
@@ -18,9 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 
-import static org.springframework.http.HttpStatus.OK;
 import static sport_maps.commons.BaseController.BASE_URL;
 
 @RestController
@@ -33,46 +33,40 @@ public class NewsController {
     }
 
     @PostMapping
-    @ResponseStatus(OK)
-    public int createNews(@Valid @RequestBody NewsSaveDto requestToSave) {
-        return service.createNew(requestToSave);
+    @ResponseStatus(HttpStatus.CREATED)
+    public void createNews(@Valid @RequestBody NewsSaveDto requestToSave) {
+        service.createNews(requestToSave);
     }
 
-    @GetMapping(params = {"page_num"})
-    @ResponseStatus(OK)
-    public List<NewsDto> getAllNews(int page_num) {
-        return service.getAllNews(page_num);
+    @GetMapping(params = {"page"})
+    @ResponseStatus(HttpStatus.OK)
+    public Page<NewsDto> getAllNews(@RequestParam("page") int page) {
+        return service.getAllNews(page);
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.OK)
     public NewsDto getNewsById(@PathVariable("id") Long id) {
-        return service.getNewById(id);
+        return service.getNewsById(id);
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(OK)
-    public int updateNews(@PathVariable("id") Long id, @Valid @RequestBody NewsSaveDto requestToSave) {
-        return service.updateNew(id, requestToSave);
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    public void updateNews(@PathVariable("id") Long id, @Valid @RequestBody NewsSaveDto requestToSave) {
+        service.updateNews(id, requestToSave);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteNews(@PathVariable("id") Long id) {
         service.deleteById(id);
     }
 
     @PostMapping("/upload/{id}")
-    @ResponseStatus(OK)
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> uploadImage(@PathVariable("id") Long id,
-                                         @RequestParam ("image") MultipartFile file) throws IOException {
+                                         @RequestParam("image") MultipartFile file) throws IOException {
         String uploadImage = service.uploadImage(file, id);
         return ResponseEntity.ok(uploadImage);
-    }
-
-    @GetMapping("/count")
-    @ResponseStatus(OK)
-    public double getTotalPagesCount() {
-        return service.getTotalPagesCount();
     }
 }

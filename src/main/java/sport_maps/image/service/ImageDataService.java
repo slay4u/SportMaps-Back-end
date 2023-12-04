@@ -1,4 +1,4 @@
-package sport_maps.commons.service;
+package sport_maps.image.service;
 
 /*import lombok.AllArgsConstructor;
 import org.apache.tomcat.util.http.fileupload.IOUtils;

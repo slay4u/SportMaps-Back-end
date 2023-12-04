@@ -10,7 +10,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import org.springframework.lang.NonNull;
 import sport_maps.comments.domain.EventComment;
-import sport_maps.commons.domain.EventImage;
+import sport_maps.image.domain.EventImage;
 import sport_maps.commons.domain.SportType;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class Event extends NewsEventForum {
     private List<EventImage> imageList;
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<EventComment> commentList;
+    private List<EventComment> comments;
 
     @NonNull
     public SportType getSportType() {
@@ -42,7 +42,7 @@ public class Event extends NewsEventForum {
     }
 
     @NonNull
-    public List<EventComment> getCommentList() {
-        return commentList;
+    public List<EventComment> getComments() {
+        return comments;
     }
 }

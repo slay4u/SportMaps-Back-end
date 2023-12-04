@@ -13,10 +13,10 @@ import java.util.List;
 
 @Configuration
 public class OpenAPIConfiguration {
-    @Value("${sport.maps.openapi.dev-url}")
+    @Value("${openapi.dev-url}")
     private String devUrl;
 
-    @Value("${sport.maps.openapi.prod-url}")
+    @Value("${openapi.prod-url}")
     private String prodUrl;
 
     @Bean
@@ -24,25 +24,20 @@ public class OpenAPIConfiguration {
         Server devServer = new Server();
         devServer.setUrl(devUrl);
         devServer.setDescription("Server URL in Development environment.");
-
         Server prodServer = new Server();
         prodServer.setUrl(prodUrl);
         prodServer.setDescription("Server URL in Production environment.");
-
         Contact contact = new Contact();
         contact.setEmail("galaxy.vd123@gmail.com");
         contact.setName("SportMaps team");
         contact.setUrl("https://github.com/slay4u");
-
         License mitLicense = new License().name("MIT License").url("https://choosealicense.com/licenses/mit/");
-
         Info info = new Info()
                 .title("SportMaps API")
                 .version("1.0")
                 .contact(contact)
                 .description("SportMaps is an ad-free API for easily accessing anything about sport in modern world.")
                 .license(mitLicense);
-
         return new OpenAPI().info(info).servers(List.of(devServer, prodServer));
     }
 }

@@ -1,15 +1,14 @@
 package sport_maps.nef.service;
 
+import org.springframework.data.domain.Page;
 import sport_maps.nef.dto.ForumDto;
 import sport_maps.nef.dto.ForumSaveDto;
 
-import java.util.List;
-
 public interface ForumService {
-    int createForum(ForumSaveDto dto);
-    int updateForum(Long id, ForumSaveDto dto);
+    int size = 15;
+    void createForum(ForumSaveDto dto);
+    void updateForum(Long id, ForumSaveDto dto);
     ForumDto getForumById(Long id);
     void deleteById(Long id);
-    List<ForumDto> getAllForums(int pageNumber);
-    double getTotalPagesCount();
+    Page<ForumDto> getAllForums(int page);
 }

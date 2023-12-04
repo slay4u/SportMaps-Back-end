@@ -7,7 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.CascadeType;
 import org.springframework.lang.NonNull;
 import sport_maps.comments.domain.NewsComment;
-import sport_maps.commons.domain.NewsImage;
+import sport_maps.image.domain.NewsImage;
 
 import java.util.List;
 
@@ -18,7 +18,7 @@ public class News extends NewsEventForum {
     private List<NewsImage> imageList;
     @OneToMany(mappedBy = "news", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<NewsComment> commentList;
+    private List<NewsComment> comments;
 
     @NonNull
     public List<NewsImage> getImageList() {
@@ -26,7 +26,7 @@ public class News extends NewsEventForum {
     }
 
     @NonNull
-    public List<NewsComment> getCommentList() {
-        return commentList;
+    public List<NewsComment> getComments() {
+        return comments;
     }
 }

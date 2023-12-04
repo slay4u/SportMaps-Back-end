@@ -1,6 +1,5 @@
 package sport_maps.nef.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -20,16 +19,15 @@ public abstract class NewsEventForum {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true, length = 150)
+    @Column(nullable = false, length = 150)
     private String name;
     @Column(nullable = false)
     private LocalDateTime date;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(nullable = false)
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
-    private User createdBy;
+    private User author;
 
     @NonNull
     public Long getId() {
@@ -68,12 +66,12 @@ public abstract class NewsEventForum {
     }
 
     @NonNull
-    public User getCreatedBy() {
-        return createdBy;
+    public User getAuthor() {
+        return author;
     }
 
-    public void setCreatedBy(User createdBy) {
-        this.createdBy = createdBy;
+    public void setAuthor(User author) {
+        this.author = author;
     }
 
     @Override
@@ -88,7 +86,7 @@ public abstract class NewsEventForum {
         if (!getName().equals(that.getName())) return false;
         if (!getDate().equals(that.getDate())) return false;
         if (!getText().equals(that.getText())) return false;
-        return getCreatedBy().equals(that.getCreatedBy());
+        return getAuthor().equals(that.getAuthor());
     }
 
     @Override

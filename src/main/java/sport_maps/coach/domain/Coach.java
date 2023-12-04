@@ -13,7 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.NonNull;
-import sport_maps.commons.domain.CoachImage;
+import sport_maps.image.domain.CoachImage;
 import sport_maps.commons.domain.SportType;
 
 import java.util.List;

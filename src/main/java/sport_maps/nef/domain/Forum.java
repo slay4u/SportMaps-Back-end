@@ -14,10 +14,10 @@ import java.util.List;
 public class Forum extends NewsEventForum {
     @OneToMany(mappedBy = "forum", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<ForumComment> commentList;
+    private List<ForumComment> comments;
 
     @NonNull
-    public List<ForumComment> getCommentList() {
-        return commentList;
+    public List<ForumComment> getComments() {
+        return comments;
     }
 }

@@ -1,7 +1,7 @@
-package sport_maps.commons.dao;
+package sport_maps.image.dao;
 
 import org.springframework.data.repository.NoRepositoryBean;
-import sport_maps.commons.domain.Image;
+import sport_maps.image.domain.Image;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @NoRepositoryBean

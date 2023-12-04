@@ -1,7 +1,9 @@
 package sport_maps.security.service;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.authentication.CredentialsExpiredException;
+import sport_maps.mail.EmailService;
 import sport_maps.security.dao.UserDao;
 import sport_maps.security.dao.VerificationTokenDao;
 import sport_maps.security.domain.Role;
@@ -23,15 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 import sport_maps.security.general.JwtProvider;
 
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
-@RequiredArgsConstructor
 @Transactional
 public class AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
@@ -40,11 +39,23 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
     private final RefreshTokenService refreshTokenService;
+    private final EmailService emailService;
 
-    @Value("${signup.token.time}")
+    @Value("${time.signup}")
     private Long tokenExpiration;
 
-    public String signup(RegisterRequest registerRequest) {
+    public AuthenticationService(BCryptPasswordEncoder passwordEncoder, UserDao userDao, VerificationTokenDao verificationTokenDao, JwtProvider jwtProvider,
+                                 AuthenticationManager authenticationManager, RefreshTokenService refreshTokenService, EmailService emailService) {
+        this.passwordEncoder = passwordEncoder;
+        this.userDao = userDao;
+        this.verificationTokenDao = verificationTokenDao;
+        this.authenticationManager = authenticationManager;
+        this.jwtProvider = jwtProvider;
+        this.refreshTokenService = refreshTokenService;
+        this.emailService = emailService;
+    }
+
+    public void signup(RegisterRequest registerRequest) {
         validateNewUser(registerRequest);
         validateExistingUser(registerRequest);
         User user = new User();
@@ -55,40 +66,35 @@ public class AuthenticationService {
         user.setCreated(Instant.now());
         user.setEnabled(false); // once validated, will be set to true
         user.setRole(Role.ADMIN); // only admins for now
-
         userDao.save(user);
-
-        return generateVerificationToken(user);
+        emailService.sendHtmlEmail(registerRequest.email(), "http://localhost:8090/api/v1/auth/" + generateVerificationToken(user));
     }
 
     public void verifyToken(String token) {
-        Optional<VerificationToken> verificationToken = verificationTokenDao.findByToken(token);
-        if(verificationToken.isEmpty()) {
-            throw new CredentialsExpiredException("Provided token does not exist!");
+        VerificationToken verificationToken = verificationTokenDao.findByToken(token)
+                .orElseThrow(() -> new EntityNotFoundException("Provided token doesn't exist."));
+        User user = verificationToken.getUser();
+        if (Instant.now().isAfter(verificationToken.getExpiryDate())) {
+            emailService.sendHtmlEmail(user.getEmail(), "http://localhost:8090/api/v1/auth/" + generateVerificationToken(user));
+            throw new CredentialsExpiredException("Verification token expired.");
         }
-        if(Instant.now().isAfter(verificationToken.get().getExpiryDate())) {
-            throw new CredentialsExpiredException("Verification token expired!");
-        }
-        fetchUserAndEnable(verificationToken.get());
+        fetchUserAndEnable(verificationToken);
+        verificationTokenDao.deleteById(verificationToken.getId());
     }
 
     public AuthenticationResponse login(LoginRequest loginRequest) {
         Authentication authenticate = getAuthentication(loginRequest);
-        String token = jwtProvider.generateToken(authenticate);
-        User userByEmail = findUserByEmail(loginRequest.email());
+        org.springframework.security.core.userdetails.User principal =
+                (org.springframework.security.core.userdetails.User) authenticate.getPrincipal();
+        String token = jwtProvider.generateToken(principal.getUsername());
+        User userByEmail = getByEmail(loginRequest.email());
         return new AuthenticationResponse(token,
-                userByEmail.getIdUser(),
-                userByEmail.getFirstName(),
-                userByEmail.getLastName(),
+                userByEmail.getFirstName() + "|" + userByEmail.getLastName(),
                 String.valueOf(userByEmail.getRole()),
-                String.valueOf(ZonedDateTime
-                        .ofInstant(Instant.now().plusMillis(
-                                        jwtProvider.getJwtExpirationInMillis()),
-                                ZoneId.of("EET"))),
                 refreshTokenService.generateRefreshToken().getToken());
     }
 
-    public Optional<org.springframework.security.core.userdetails.User> getCurrentUser() {
+    private Optional<org.springframework.security.core.userdetails.User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null) {
             return Optional.empty();
@@ -99,30 +105,19 @@ public class AuthenticationService {
         return Optional.of(principal);
     }
 
-
     public Optional<User> getDomainUser() {
         Optional<org.springframework.security.core.userdetails.User> currentUser = getCurrentUser();
-        return currentUser.map(user -> findUserByEmail(user.getUsername()));
+        return currentUser.map(user -> getByEmail(user.getUsername()));
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshToken) {
-        refreshTokenService.validateRefreshToken(refreshToken.refreshToken());
-        String token = jwtProvider.generateTokenWithUserEmail(refreshToken.email());
-        User userByEmail = findUserByEmail(refreshToken.email());
+        refreshTokenService.validateToken(refreshToken.refreshToken());
+        String token = jwtProvider.generateToken(refreshToken.email());
+        User userByEmail = getByEmail(refreshToken.email());
         return new AuthenticationResponse(token,
-                userByEmail.getIdUser(),
-                userByEmail.getFirstName(),
-                userByEmail.getLastName(),
+                userByEmail.getFirstName() + "|" + userByEmail.getLastName(),
                 String.valueOf(userByEmail.getRole()),
-                String.valueOf(ZonedDateTime
-                        .ofInstant(Instant.now().plusMillis(
-                                        jwtProvider.getJwtExpirationInMillis()),
-                                ZoneId.of("EET"))),
                 refreshToken.refreshToken());
-    }
-
-    public User getUserByEmail(String email) {
-        return findUserByEmail(email);
     }
 
     private String generateVerificationToken(User user) {
@@ -131,24 +126,19 @@ public class AuthenticationService {
         verificationToken.setToken(token);
         verificationToken.setUser(user);
         verificationToken.setExpiryDate(Instant.now().plusMillis(tokenExpiration));
-
         verificationTokenDao.save(verificationToken);
         return token;
     }
 
     private void fetchUserAndEnable(VerificationToken verificationToken) {
-        String email = verificationToken.getUser().getUsername();
-        User presentUser = findUserByEmail(email);
+        String email = verificationToken.getUser().getEmail();
+        User presentUser = getByEmail(email);
         presentUser.setEnabled(true);
         userDao.save(presentUser);
     }
 
-    private User findUserByEmail(String email) {
-        Optional<User> user = userDao.findByEmail(email);
-        if (user.isEmpty()) {
-            throw new CredentialsExpiredException("User not found with email " + email);
-        }
-        return user.get();
+    private User getByEmail(String email) {
+        return userDao.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User wasn't found."));
     }
 
     private Authentication getAuthentication(LoginRequest loginRequest) {
@@ -158,7 +148,7 @@ public class AuthenticationService {
                     new UsernamePasswordAuthenticationToken(
                             loginRequest.email(), loginRequest.password()));
         } catch (Exception e) {
-            throw new InsufficientAuthenticationException("Credentials are not valid!");
+            throw new InsufficientAuthenticationException("Credentials are not valid.");
         }
         return authenticate;
     }
@@ -166,23 +156,23 @@ public class AuthenticationService {
     private void validateExistingUser(RegisterRequest registerRequest) {
         String toCheck = registerRequest.email();
         Optional<User> byEmail = userDao.findByEmail(toCheck);
-        if(byEmail.isPresent()) {
-            throw new CredentialsExpiredException("User with email " + toCheck + " already exists!");
+        if (byEmail.isPresent()) {
+            throw new EntityExistsException("User with that email already exists.");
         }
     }
 
     private void validateNewUser(RegisterRequest registerRequest) {
         if (registerRequest.firstName().isBlank() || isValidUsername(registerRequest.firstName())) {
-            throw new IllegalArgumentException("User's first name is not valid");
+            throw new IllegalArgumentException("First name is not valid.");
         }
         if (registerRequest.lastName().isBlank() || isValidUsername(registerRequest.lastName())) {
-            throw new IllegalArgumentException("User's last name is not valid");
+            throw new IllegalArgumentException("Last name is not valid.");
         }
         if (registerRequest.email().isBlank()) {
-            throw new IllegalArgumentException("User's email is not valid");
+            throw new IllegalArgumentException("Email is not valid.");
         }
         if (registerRequest.password().isBlank() || isValidPassword(registerRequest.password())) {
-            throw new IllegalArgumentException("User's password is not valid");
+            throw new IllegalArgumentException("Password is not valid.");
         }
     }
 

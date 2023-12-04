@@ -2,13 +2,13 @@ package sport_maps.nef.service;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import sport_maps.commons.dao.NewsImageDao;
-import sport_maps.commons.domain.NewsImage;
-import sport_maps.commons.util.mapper.CustomObjectMapper;
+import org.springframework.data.domain.Page;
+import sport_maps.image.dao.NewsImageDao;
+import sport_maps.image.domain.NewsImage;
+import sport_maps.commons.util.mapper.Mapper;
 import sport_maps.nef.domain.News;
 import sport_maps.security.dao.UserDao;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,21 +23,18 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
 @Transactional
 public class NewsServiceImpl implements NewsService {
-    private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final NewsDao newsDao;
     private final NewsImageDao imageDao;
     private final String FOLDER_PATH;
     private final UserDao userDao;
-    private final CustomObjectMapper mapper;
+    private final Mapper mapper;
 
-    public NewsServiceImpl(NewsDao newsDao, NewsImageDao imageDao, UserDao userDao,
-                           CustomObjectMapper mapper) throws URISyntaxException {
+    public NewsServiceImpl(NewsDao newsDao, NewsImageDao imageDao, UserDao userDao, Mapper mapper) throws URISyntaxException {
         this.newsDao = newsDao;
         this.imageDao = imageDao;
         this.FOLDER_PATH = getFOLDER_PATH();
@@ -53,26 +50,25 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public int createNew(NewsSaveDto dto) {
-        validateNew(dto);
-        validateNewName(dto.name());
+    public void createNews(NewsSaveDto dto) {
+        validateNews(dto);
+        validateNewsName(dto.name());
         User user = getUser(dto);
         News aNews = mapper.convertToEntity(dto, user, new News());
         newsDao.save(aNews);
-        return HttpStatus.CREATED.value();
     }
 
     @Override
-    public int updateNew(Long id, NewsSaveDto dto) {
-        validateNew(dto);
+    public void updateNews(Long id, NewsSaveDto dto) {
+        validateNews(dto);
+        validateNewsName(dto.name());
         User user = getUser(dto);
         News aNews = mapper.convertToEntity(dto, user, new News());
         newsDao.save(updateContent(aNews, getById(id)));
-        return HttpStatus.CREATED.value();
     }
 
     @Override
-    public NewsDto getNewById(Long id) {
+    public NewsDto getNewsById(Long id) {
         News byId = getById(id);
         return mapper.toNewsDto(byId);
     }
@@ -84,12 +80,8 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
-    public List<NewsDto> getAllNews(int pageNumber) {
-        if (pageNumber < 0) {
-            throw new IllegalArgumentException("Page number cannot be less than 0!");
-        }
-        List<News> news = newsDao.findAll(PageRequest.of(pageNumber, PAGE_ELEMENTS_AMOUNT)).getContent();
-        return mapper.toListNewsDto(news);
+    public Page<NewsDto> getAllNews(int page) {
+        return newsDao.findAll(PageRequest.of(page, size)).map(mapper::toNewsDto);
     }
 
     @Override
@@ -107,47 +99,33 @@ public class NewsServiceImpl implements NewsService {
         return "Image uploaded successfully " + file.getOriginalFilename();
     }
 
-    @Override
-    public double getTotalPagesCount() {
-        long count = newsDao.getAllNewCount();
-        double pagesNum = (double) count / PAGE_ELEMENTS_AMOUNT;
-        return Math.ceil(pagesNum);
-    }
-
     private User getUser(NewsSaveDto dto) {
-        return userDao.findByEmail(dto.createdBy()).orElseThrow(() ->
-                new EntityNotFoundException("User by email " + dto.createdBy() + " was not found."));
+        return userDao.findByEmail(dto.author()).orElseThrow(() -> new EntityNotFoundException("User wasn't found."));
     }
 
-    private void validateNew(NewsSaveDto dto) {
+    private void validateNews(NewsSaveDto dto) {
         if (dto.name().isBlank()) {
-            throw new IllegalArgumentException("News's name is not valid");
+            throw new IllegalArgumentException("Name is not valid.");
         }
         if (dto.date().isAfter(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Publish date is not valid");
+            throw new IllegalArgumentException("Date is not valid.");
         }
         if (dto.text().isBlank()) {
-            throw new IllegalArgumentException("Description is not valid");
+            throw new IllegalArgumentException("Text is not valid.");
         }
-        if (dto.createdBy().isBlank()) {
-            throw new IllegalArgumentException("User email is not valid");
+        if (dto.author().isBlank()) {
+            throw new IllegalArgumentException("User email is not valid.");
         }
     }
 
-    private void validateNewName(String name) {
-        Optional<News> byName = newsDao.findNewsByName(name);
-        if (byName.isPresent()) {
-            throw new IllegalArgumentException("News with the name "
-                    + name +
-                    " already exists!");
-        }
+    private void validateNewsName(String name) {
+        Optional<News> byName = newsDao.findByName(name);
+        if (byName.isPresent()) throw new EntityExistsException("News with that name already exists.");
     }
 
     private void validatePresentImage(String name, String filePath) {
-        Optional<NewsImage> result = imageDao.findNewsImageByNameAndFilePath(name, filePath);
-        if (result.isPresent()) {
-            throw new EntityExistsException("Image already exists!");
-        }
+        Optional<NewsImage> result = imageDao.findByNameAndFilePath(name, filePath);
+        if (result.isPresent()) throw new EntityExistsException("Image already exists!");
     }
 
     private News updateContent(News news, News resultNews) {
@@ -158,10 +136,6 @@ public class NewsServiceImpl implements NewsService {
     }
 
     private News getById(Long id) {
-        Optional<News> resultNew = newsDao.findById(id);
-        if (resultNew.isEmpty()) {
-            throw new EntityNotFoundException("News by id was not found!");
-        }
-        return resultNew.get();
+        return newsDao.findById(id).orElseThrow(() -> new EntityNotFoundException("News wasn't found."));
     }
 }

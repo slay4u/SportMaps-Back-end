@@ -2,26 +2,25 @@ package sport_maps.coach.service;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import sport_maps.coach.domain.Coach;
-import sport_maps.commons.dao.CoachImageDao;
-import sport_maps.commons.domain.CoachImage;
+import sport_maps.image.dao.CoachImageDao;
+import sport_maps.image.domain.CoachImage;
 import sport_maps.coach.dto.CoachDto;
 import sport_maps.coach.dto.CoachSaveDto;
 import sport_maps.commons.domain.SportType;
 import sport_maps.coach.dao.CoachDao;
-import sport_maps.commons.util.mapper.CustomObjectMapper;
+import sport_maps.commons.util.mapper.Mapper;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,13 +28,12 @@ import java.util.regex.Pattern;
 @Service
 @Transactional
 public class CoachServiceImpl implements CoachService {
-    private final int PAGE_ELEMENTS_AMOUNT = 15;
     private final CoachImageDao imageDao;
     private final String FOLDER_PATH;
     private final CoachDao coachDao;
-    private final CustomObjectMapper mapper;
+    private final Mapper mapper;
 
-    public CoachServiceImpl(CoachImageDao imageDao, CoachDao coachDao, CustomObjectMapper mapper) throws URISyntaxException {
+    public CoachServiceImpl(CoachImageDao imageDao, CoachDao coachDao, Mapper mapper) throws URISyntaxException {
         this.coachDao = coachDao;
         this.FOLDER_PATH = getFOLDER_PATH();
         this.imageDao = imageDao;
@@ -50,22 +48,21 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    public int createCoach(CoachSaveDto dto) {
+    public void createCoach(CoachSaveDto dto) {
         validateCoach(dto);
         validatePresentCoach(dto);
         SportType sportType = getSportType(dto);
         Coach coach = mapper.convertToEntity(dto, sportType, new Coach());
         coachDao.save(coach);
-        return HttpStatus.CREATED.value();
     }
 
     @Override
-    public int updateCoach(Long id, CoachSaveDto dto) {
+    public void updateCoach(Long id, CoachSaveDto dto) {
         validateCoach(dto);
+        validatePresentCoach(dto);
         SportType sportType = getSportType(dto);
         Coach coach = mapper.convertToEntity(dto, sportType, new Coach());
         coachDao.save(updateContent(coach, getById(id)));
-        return HttpStatus.CREATED.value();
     }
 
     @Override
@@ -81,12 +78,8 @@ public class CoachServiceImpl implements CoachService {
     }
 
     @Override
-    public List<CoachDto> getAllCoaches(int pageNumber) {
-        if (pageNumber < 0) {
-            throw new IllegalArgumentException("Page number cannot be less than 0!");
-        }
-        List<Coach> coaches = coachDao.findAll(PageRequest.of(pageNumber, PAGE_ELEMENTS_AMOUNT)).getContent();
-        return mapper.toListCoachDto(coaches);
+    public Page<CoachDto> getAllCoaches(int page) {
+        return coachDao.findAll(PageRequest.of(page, size)).map(mapper::toCoachDto);
     }
 
     public String uploadImage(MultipartFile file, Long id) throws IOException {
@@ -101,13 +94,6 @@ public class CoachServiceImpl implements CoachService {
         imageDao.save(image);
         file.transferTo(new File(filePath));
         return "Image uploaded successfully " + file.getOriginalFilename();
-    }
-
-    @Override
-    public double getTotalPagesCount() {
-        long count = coachDao.getAllCoachCount();
-        double pagesNum = (double) count / PAGE_ELEMENTS_AMOUNT;
-        return Math.ceil(pagesNum);
     }
 
     private void validateCoach(CoachSaveDto dto) {
@@ -148,12 +134,9 @@ public class CoachServiceImpl implements CoachService {
         Long experience = dto.experience();
         Double price = dto.price();
         String sportType = dto.sportType();
-        Optional<Coach> result = coachDao
-                .findCoachByFirstNameAndLastNameAndAgeAndExperienceAndPriceAndSportType(
+        Optional<Coach> result = coachDao.findByFirstNameAndLastNameAndAgeAndExperienceAndPriceAndSportType(
                         firstName, lastName, age, experience, price, SportType.valueOf(sportType));
-        if(result.isPresent()) {
-            throw new EntityExistsException("The coach with those fields already exists.");
-        }
+        if (result.isPresent()) throw new EntityExistsException("Coach with those fields already exists.");
     }
 
     private void validateSportType(String sportInString) {
@@ -164,9 +147,7 @@ public class CoachServiceImpl implements CoachService {
                 break;
             }
         }
-        if (!flag) {
-            throw new IllegalArgumentException("Sport type was not found!");
-        }
+        if (!flag) throw new EntityNotFoundException("Sport type wasn't found.");
     }
 
     private SportType getSportType(CoachSaveDto dto) {
@@ -176,10 +157,8 @@ public class CoachServiceImpl implements CoachService {
     }
 
     private void validatePresentImage(String name, String filePath) {
-        Optional<CoachImage> result = imageDao.findCoachImageByNameAndFilePath(name, filePath);
-        if (result.isPresent()) {
-            throw new EntityExistsException("Image already exists!");
-        }
+        Optional<CoachImage> result = imageDao.findByNameAndFilePath(name, filePath);
+        if (result.isPresent()) throw new EntityExistsException("Image already exists!");
     }
 
     private Coach updateContent(Coach coach, Coach resultCoach) {
@@ -194,10 +173,6 @@ public class CoachServiceImpl implements CoachService {
     }
 
     private Coach getById(Long id) {
-        Optional<Coach> resultCoach = coachDao.findById(id);
-        if (resultCoach.isEmpty()) {
-            throw new EntityNotFoundException("Coach by id was not found!");
-        }
-        return resultCoach.get();
+        return coachDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Coach wasn't found."));
     }
 }
