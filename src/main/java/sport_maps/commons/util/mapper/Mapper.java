@@ -30,13 +30,13 @@ public class Mapper {
         return switch (comment) {
             case EventComment com ->
                     new CommentDto(com.getId(), String.valueOf(com.getDate()), com.getText(), com.getAuthor().getEmail()
-                            + "|" + com.getAuthor().getFirstName() + "|" + com.getAuthor().getLastName());
+                            + "|" + com.getAuthor().getFirstName() + "|" + com.getAuthor().getLastName(), com.getEvent().getId());
             case ForumComment com ->
                     new CommentDto(com.getId(), String.valueOf(com.getDate()), com.getText(), com.getAuthor().getEmail()
-                            + "|" + com.getAuthor().getFirstName() + "|" + com.getAuthor().getLastName());
+                            + "|" + com.getAuthor().getFirstName() + "|" + com.getAuthor().getLastName(), com.getForum().getId());
             case NewsComment com ->
                     new CommentDto(com.getId(), String.valueOf(com.getDate()), com.getText(), com.getAuthor().getEmail()
-                            + "|" + com.getAuthor().getFirstName() + "|" + com.getAuthor().getLastName());
+                            + "|" + com.getAuthor().getFirstName() + "|" + com.getAuthor().getLastName(), com.getNews().getId());
             case null, default -> null;
         };
     }
