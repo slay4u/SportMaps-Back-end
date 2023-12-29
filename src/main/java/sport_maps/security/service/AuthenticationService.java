@@ -86,7 +86,7 @@ public class AuthenticationService {
         Authentication authenticate = getAuthentication(loginRequest);
         org.springframework.security.core.userdetails.User principal =
                 (org.springframework.security.core.userdetails.User) authenticate.getPrincipal();
-        String token = jwtProvider.generateToken(principal.getUsername());
+        String token = jwtProvider.generateToken(principal.getUsername(), principal.getAuthorities().toString());
         User userByEmail = getByEmail(loginRequest.email());
         return new AuthenticationResponse(token,
                 userByEmail.getFirstName() + "|" + userByEmail.getLastName(),
@@ -112,8 +112,8 @@ public class AuthenticationService {
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshToken) {
         refreshTokenService.validateToken(refreshToken.refreshToken());
-        String token = jwtProvider.generateToken(refreshToken.email());
         User userByEmail = getByEmail(refreshToken.email());
+        String token = jwtProvider.generateToken(refreshToken.email(), userByEmail.getRole().toString());
         return new AuthenticationResponse(token,
                 userByEmail.getFirstName() + "|" + userByEmail.getLastName(),
                 String.valueOf(userByEmail.getRole()),

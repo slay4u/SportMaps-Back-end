@@ -24,9 +24,10 @@ public class JwtProvider {
         key = secretKeyFor(SignatureAlgorithm.HS512);
     }
 
-    public String generateToken(String email) {
+    public String generateToken(String email, String authorities) {
         return Jwts.builder().setSubject(email).signWith(key)
                 .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .claim("role", authorities.replace("[", "").replace("]", ""))
                 .compact();
     }
 
