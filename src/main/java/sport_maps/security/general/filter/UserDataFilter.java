@@ -17,6 +17,8 @@ public class UserDataFilter extends BaseSecurityFilter {
     @Autowired
     private UserDataService dataService;
 
+    // fix sql problems, commented for now
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 //        Status status = dataService.writeAction(UserAgent.parseUserAgentString(request.getHeader("User-Agent")), request.getRequestURI());

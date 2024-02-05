@@ -16,6 +16,8 @@ import sport_maps.security.general.JwtProvider;
 
 import java.io.IOException;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 @NoArgsConstructor
 public class JwtAuthenticationFilter extends BaseSecurityFilter {
     @Autowired
@@ -25,8 +27,10 @@ public class JwtAuthenticationFilter extends BaseSecurityFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        final String header = request.getHeader("Authorization");
+        final String header = request.getHeader(AUTHORIZATION);
         if (header == null || !header.startsWith("Bearer ")) {
+            if (request.getMethod().equals("GET")) // could be a better way, permitAll not working w/o it
+                chain.doFilter(request, response); // maybe configure shouldNotFilter in BaseFilter
             return;
         }
         final String jwt = header.substring(7);

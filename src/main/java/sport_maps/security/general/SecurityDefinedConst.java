@@ -8,6 +8,10 @@ public final class SecurityDefinedConst {
     };
 
     public static final String[] GET = {
+            BASE_URL + "/news/**",
+            BASE_URL + "/events/**",
+            BASE_URL + "/forums/**",
+            BASE_URL + "/coaches/**",
             // -- Swagger UI v3 (OpenAPI)
             "/v3/api-docs/**",
             "/swagger-ui/**",

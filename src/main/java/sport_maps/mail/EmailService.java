@@ -3,6 +3,7 @@ package sport_maps.mail;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -13,6 +14,7 @@ public class EmailService {
         this.mailSender = mailSender;
     }
 
+    @Async
     public void sendHtmlEmail(String to, String link) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
