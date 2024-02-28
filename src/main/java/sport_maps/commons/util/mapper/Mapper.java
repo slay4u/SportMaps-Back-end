@@ -1,6 +1,8 @@
 package sport_maps.commons.util.mapper;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 import sport_maps.coach.domain.Coach;
 import sport_maps.coach.dto.CoachDto;
 import sport_maps.coach.dto.CoachSaveDto;
@@ -12,6 +14,7 @@ import sport_maps.comments.dto.CommentDto;
 import sport_maps.comments.dto.CommentSaveDto;
 import sport_maps.image.domain.Image;
 import sport_maps.commons.domain.SportType;
+import sport_maps.image.domain.NewsImage;
 import sport_maps.nef.domain.Event;
 import sport_maps.nef.domain.Forum;
 import sport_maps.nef.domain.News;
@@ -107,6 +110,15 @@ public class Mapper {
         news.setText(dto.text());
         news.setAuthor(user);
         return news;
+    }
+
+    public NewsImage convertToEntity(News news, MultipartFile file, String fileName, String filePath) {
+        NewsImage image = new NewsImage();
+        image.setName(fileName);
+        image.setType(file.getContentType());
+        image.setFilePath(filePath);
+        image.setNews(news);
+        return image;
     }
 
     public byte[] fetchImage(List<? extends Image> allByEntityId) {
