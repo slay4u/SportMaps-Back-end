@@ -1,6 +1,5 @@
 package sport_maps.commons.util.mapper;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import sport_maps.coach.domain.Coach;
@@ -29,7 +28,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class Mapper {
-    public CommentDto toCommentDto(Comment comment) {
+    public CommentDto convertToDto(Comment comment) {
         return switch (comment) {
             case EventComment com ->
                     new CommentDto(com.getId(), String.valueOf(com.getDate()), com.getText(), com.getAuthor().getEmail()
@@ -44,69 +43,69 @@ public class Mapper {
         };
     }
 
-    public List<CommentDto> toListCommentDto(List<? extends Comment> comments) {
-        return comments.stream().map(this::toCommentDto).collect(Collectors.toList());
+    public List<CommentDto> convertToListDto(List<? extends Comment> comments) {
+        return comments.stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    public EventComment convertToEntity(CommentSaveDto dto, User user, Event event, EventComment comment) {
-        comment.setDate(dto.date());
+    public EventComment convertToEntity(CommentSaveDto dto, User user, Event event) {
+        EventComment comment = new EventComment();
         comment.setText(dto.text());
         comment.setAuthor(user);
         comment.setEvent(event);
         return comment;
     }
 
-    public ForumComment convertToEntity(CommentSaveDto dto, User user, Forum forum, ForumComment comment) {
-        comment.setDate(dto.date());
+    public ForumComment convertToEntity(CommentSaveDto dto, User user, Forum forum) {
+        ForumComment comment = new ForumComment();
         comment.setText(dto.text());
         comment.setAuthor(user);
         comment.setForum(forum);
         return comment;
     }
 
-    public NewsComment convertToEntity(CommentSaveDto dto, User user, News news, NewsComment comment) {
-        comment.setDate(dto.date());
+    public NewsComment convertToEntity(CommentSaveDto dto, User user, News news) {
+        NewsComment comment = new NewsComment();
         comment.setText(dto.text());
         comment.setAuthor(user);
         comment.setNews(news);
         return comment;
     }
 
-    public EventDto toEventDto(Event event) {
+    public EventDto convertToDto(Event event) {
         return new EventDto(event.getId(), event.getName(), String.valueOf(event.getDate()), event.getText(), event.getAuthor().getEmail() + "|" + event.getAuthor().getFirstName() + "|" + event.getAuthor().getLastName(),
-                String.valueOf(event.getSportType()), fetchImage(event.getImageList()), toListCommentDto(event.getComments()));
+                String.valueOf(event.getSportType()), fetchImage(event.getImageList()), convertToListDto(event.getComments()));
     }
 
-    public ForumDto toForumDto(Forum forum) {
+    public ForumDto convertToDto(Forum forum) {
         return new ForumDto(forum.getId(), forum.getName(), String.valueOf(forum.getDate()), forum.getText(), forum.getAuthor().getEmail() + "|" + forum.getAuthor().getFirstName() + "|" + forum.getAuthor().getLastName(),
-                toListCommentDto(forum.getComments()));
+                convertToListDto(forum.getComments()));
     }
 
-    public NewsDto toNewsDto(News news) {
+    public NewsDto convertToDto(News news) {
         return new NewsDto(news.getId(), news.getName(), String.valueOf(news.getDate()), news.getText(), news.getAuthor().getEmail() + "|" + news.getAuthor().getFirstName() + "|" + news.getAuthor().getLastName(),
-                fetchImage(news.getImageList()), toListCommentDto(news.getComments()));
+                fetchImage(news.getImageList()), convertToListDto(news.getComments()));
     }
 
-    public Forum convertToEntity(ForumSaveDto dto, User user, Forum forum) {
+    public Forum convertToEntity(ForumSaveDto dto, User user) {
+        Forum forum = new Forum();
         forum.setName(dto.name());
-        forum.setDate(dto.date());
         forum.setText(dto.text());
         forum.setAuthor(user);
         return forum;
     }
 
-    public Event convertToEntity(EventSaveDto dto, SportType sportType, User user, Event event) {
+    public Event convertToEntity(EventSaveDto dto, SportType sportType, User user) {
+        Event event = new Event();
         event.setName(dto.name());
-        event.setDate(dto.date());
         event.setText(dto.text());
         event.setSportType(sportType);
         event.setAuthor(user);
         return event;
     }
 
-    public News convertToEntity(NewsSaveDto dto, User user, News news) {
+    public News convertToEntity(NewsSaveDto dto, User user) {
+        News news = new News();
         news.setName(dto.name());
-        news.setDate(dto.date());
         news.setText(dto.text());
         news.setAuthor(user);
         return news;
@@ -136,8 +135,8 @@ public class Mapper {
         return image;
     }
 
-    public Coach convertToEntity(CoachSaveDto dto, SportType sportType,
-                                 Coach coach) {
+    public Coach convertToEntity(CoachSaveDto dto, SportType sportType) {
+        Coach coach = new Coach();
         coach.setFirstName(dto.firstName());
         coach.setLastName(dto.lastName());
         coach.setAge(dto.age());
@@ -148,7 +147,7 @@ public class Mapper {
         return coach;
     }
 
-    public CoachDto toCoachDto(Coach coach) {
+    public CoachDto convertToDto(Coach coach) {
         return new CoachDto(coach.getId(), coach.getFirstName(), coach.getLastName(), coach.getAge(), coach.getExperience(), coach.getPrice(), coach.getDescription(), String.valueOf(coach.getSportType()), fetchImage(coach.getImageList()));
     }
 }

@@ -8,7 +8,7 @@ import sport_maps.nef.dto.ForumDto;
 import sport_maps.nef.dto.ForumSaveDto;
 import sport_maps.nef.service.ForumService;
 
-import static sport_maps.commons.BaseController.BASE_URL;
+import static sport_maps.security.general.SecurityURLs.BASE_URL;
 
 @RestController
 @RequestMapping(BASE_URL + "/forums")

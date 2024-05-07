@@ -12,7 +12,7 @@ import sport_maps.security.service.AuthenticationService;
 import sport_maps.security.service.RefreshTokenService;
 
 import static org.springframework.http.HttpHeaders.SET_COOKIE;
-import static sport_maps.commons.BaseController.BASE_URL;
+import static sport_maps.security.general.SecurityURLs.BASE_URL;
 
 @RestController
 @RequestMapping(BASE_URL + "/auth")

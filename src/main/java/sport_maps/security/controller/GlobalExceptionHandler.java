@@ -22,7 +22,8 @@ import static org.slf4j.LoggerFactory.getLogger;
 public class GlobalExceptionHandler {
     private static final Logger log = getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({IllegalArgumentException.class, EntityExistsException.class, IOException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler({IllegalArgumentException.class, EntityExistsException.class, IOException.class, HttpMessageNotReadableException.class,
+    NoSuchFieldException.class, IllegalAccessException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public void IllegalArgumentAndEntityExistsAndIOAndHttpMessageNotReadable(Exception e) {
         switch (e) {
@@ -30,6 +31,8 @@ public class GlobalExceptionHandler {
             case EntityExistsException ignored -> log.warn("EntityExistsException thrown: {}", e.getMessage());
             case IOException ignored -> log.warn("IOException thrown: {}", e.getMessage());
             case HttpMessageNotReadableException ignored -> log.warn("HttpMessageNotReadableException thrown: {}", e.getMessage());
+            case NoSuchFieldException ignored -> log.warn("NoSuchFieldException thrown: {}", e.getMessage());
+            case IllegalAccessException ignored -> log.warn("IllegalAccessException thrown: {}", e.getMessage());
             default -> {}
         }
     }

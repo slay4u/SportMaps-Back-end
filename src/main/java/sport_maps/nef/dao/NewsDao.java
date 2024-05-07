@@ -8,4 +8,5 @@ import java.util.Optional;
 @Repository
 public interface NewsDao extends NEFDao<News> {
     Optional<News> findByName(String name);
+    boolean existsByName(String name);
 }

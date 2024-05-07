@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-import static sport_maps.commons.BaseController.BASE_URL;
+import static sport_maps.security.general.SecurityURLs.BASE_URL;
 
 @RestController
 @RequestMapping(BASE_URL + "/markers")

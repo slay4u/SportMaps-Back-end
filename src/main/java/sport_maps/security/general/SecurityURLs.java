@@ -1,10 +1,11 @@
 package sport_maps.security.general;
 
-import static sport_maps.commons.BaseController.BASE_URL;
+public final class SecurityURLs {
+    public static final String BASE_URL = "/sm";
 
-public final class SecurityDefinedConst {
     public static final String[] ALL = {
-            BASE_URL + "/auth/**"
+            BASE_URL + "/auth/**",
+            BASE_URL + "/auth"
     };
 
     public static final String[] GET = {

@@ -8,19 +8,20 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.NonNull;
 import sport_maps.security.domain.User;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @MappedSuperclass
 public abstract class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private LocalDateTime date;
+    @CreationTimestamp
+    private Instant date;
     @Column(columnDefinition = "TEXT", nullable = false)
     private String text;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -37,11 +38,11 @@ public abstract class Comment {
     }
 
     @NonNull
-    public LocalDateTime getDate() {
+    public Instant getDate() {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
+    public void setDate(Instant date) {
         this.date = date;
     }
 

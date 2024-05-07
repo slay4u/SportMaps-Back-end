@@ -68,7 +68,6 @@ public class AuthenticationService {
         user.setLastName(registerRequest.lastName());
         user.setEmail(registerRequest.email());
         user.setPassword(passwordEncoder.encode(registerRequest.password()));
-        user.setCreated(Instant.now());
         user.setEnabled(false);
         user.setRole(Role.ADMIN); // only admins for now
         userDao.save(user);
@@ -76,8 +75,7 @@ public class AuthenticationService {
     }
 
     public void verifyToken(String token) {
-        VerificationToken verificationToken = verificationTokenDao.findByToken(token)
-                .orElseThrow(() -> new EntityNotFoundException("Provided token doesn't exist."));
+        VerificationToken verificationToken = verificationTokenDao.findByToken(token).orElseThrow(EntityNotFoundException::new);
         User user = verificationToken.getUser();
         if (Instant.now().isAfter(verificationToken.getExpiryDate())) {
             emailService.sendHtmlEmail(user.getEmail(), "http://localhost:3000/verification/" + generateVerificationToken(user));
@@ -151,7 +149,7 @@ public class AuthenticationService {
     }
 
     private User getByEmail(String email) {
-        return userDao.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("User wasn't found."));
+        return userDao.findByEmail(email).orElseThrow(EntityNotFoundException::new);
     }
 
     private Authentication getAuthentication(LoginRequest loginRequest) {
@@ -167,11 +165,7 @@ public class AuthenticationService {
     }
 
     private void validateExistingUser(RegisterRequest registerRequest) {
-        String toCheck = registerRequest.email();
-        Optional<User> byEmail = userDao.findByEmail(toCheck);
-        if (byEmail.isPresent()) {
-            throw new EntityExistsException("User with that email already exists.");
-        }
+        if (userDao.existsByEmail(registerRequest.email())) throw new EntityExistsException("User with that email already exists.");
     }
 
     private void validateNewUser(RegisterRequest registerRequest) {
@@ -181,9 +175,7 @@ public class AuthenticationService {
         if (registerRequest.lastName().isBlank() || isValidUsername(registerRequest.lastName())) {
             throw new IllegalArgumentException("Last name is not valid.");
         }
-        if (registerRequest.email().isBlank()) {
-            throw new IllegalArgumentException("Email is not valid.");
-        }
+        if (registerRequest.email().isBlank()) throw new IllegalArgumentException("Email is not valid.");
         if (registerRequest.password().isBlank() || isValidPassword(registerRequest.password())) {
             throw new IllegalArgumentException("Password is not valid.");
         }

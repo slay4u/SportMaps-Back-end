@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.NonNull;
 
@@ -26,6 +27,7 @@ public class User {
     private String password;
     @Column(nullable = false, unique = true)
     private String email;
+    @CreationTimestamp
     private Instant created;
     private boolean enabled;
     private Role role;

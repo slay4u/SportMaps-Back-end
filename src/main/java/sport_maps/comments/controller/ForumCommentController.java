@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import sport_maps.comments.dto.CommentSaveDto;
 import sport_maps.comments.service.CommentService;
 
-import static sport_maps.commons.BaseController.BASE_URL;
+import static sport_maps.security.general.SecurityURLs.BASE_URL;
 
 @RestController
 @RequestMapping(BASE_URL + "/forum-comments")

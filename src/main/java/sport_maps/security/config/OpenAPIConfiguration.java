@@ -28,7 +28,7 @@ public class OpenAPIConfiguration {
         prodServer.setUrl(prodUrl);
         prodServer.setDescription("Server URL in Production environment.");
         Contact contact = new Contact();
-        contact.setEmail("galaxy.vd123@gmail.com");
+        contact.setEmail("sportmaps.official@gmail.com");
         contact.setName("SportMaps team");
         contact.setUrl("https://github.com/slay4u");
         License mitLicense = new License().name("MIT License").url("https://choosealicense.com/licenses/mit/");

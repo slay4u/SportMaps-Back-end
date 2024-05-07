@@ -3,10 +3,12 @@ package sport_maps.security.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.web.util.WebUtils;
+import sport_maps.commons.service.AbstractService;
 import sport_maps.security.dao.RefreshTokenDao;
 import sport_maps.security.domain.RefreshToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,14 +21,14 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class RefreshTokenService {
-    private final RefreshTokenDao refreshTokenDao;
-
+public class RefreshTokenService extends AbstractService<RefreshToken, RefreshTokenDao> {
     @Value("${time.refresh}")
     private Long refreshExpiration;
 
-    public RefreshTokenService(RefreshTokenDao refreshTokenDao) {
-        this.refreshTokenDao = refreshTokenDao;
+    @Override
+    @Autowired
+    protected void setDao(RefreshTokenDao refreshTokenDao) {
+        this.dao = refreshTokenDao;
     }
 
     public String generateRefreshToken(User user) {
@@ -35,7 +37,7 @@ public class RefreshTokenService {
         refreshToken.setToken(token);
         refreshToken.setUser(user);
         refreshToken.setExpiryDate(Instant.now().plusMillis(refreshExpiration));
-        refreshTokenDao.save(refreshToken);
+        save(refreshToken);
         return token;
     }
 
@@ -58,7 +60,7 @@ public class RefreshTokenService {
         if (cookie != null && !cookie.getValue().isEmpty()) {
             RefreshToken refreshToken = getRefreshToken(cookie.getValue());
             SecurityContextHolder.clearContext();
-            refreshTokenDao.deleteById(refreshToken.getId());
+            delete(refreshToken.getId());
             return ResponseCookie.from("user_info").httpOnly(true)
                     .secure(true).maxAge(0).path("/").build();
         }
@@ -66,6 +68,6 @@ public class RefreshTokenService {
     }
 
     private RefreshToken getRefreshToken(String token) {
-        return refreshTokenDao.findByToken(token).orElseThrow(() -> new EntityNotFoundException("Invalid refresh token."));
+        return dao.findByToken(token).orElseThrow(EntityNotFoundException::new);
     }
 }

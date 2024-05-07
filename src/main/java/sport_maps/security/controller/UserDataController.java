@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import sport_maps.security.dto.UserDataDto;
 import sport_maps.security.service.UserDataService;
 
-import static sport_maps.commons.BaseController.BASE_URL;
+import static sport_maps.security.general.SecurityURLs.BASE_URL;
 
 @RestController
 @RequestMapping(BASE_URL + "/userdata")

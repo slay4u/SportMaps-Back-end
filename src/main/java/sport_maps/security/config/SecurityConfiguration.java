@@ -3,7 +3,7 @@ package sport_maps.security.config;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import sport_maps.security.general.SecurityDefinedConst;
+import sport_maps.security.general.SecurityURLs;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -69,12 +69,12 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(auth -> auth
-                        .requestMatchers(SecurityDefinedConst.ALL).permitAll()
-                        .requestMatchers(HttpMethod.GET, SecurityDefinedConst.GET).permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, SecurityDefinedConst.OPTIONS).permitAll()
-                        .requestMatchers(HttpMethod.POST, SecurityDefinedConst.POST).hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, SecurityDefinedConst.PUT).hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, SecurityDefinedConst.DELETE).hasAuthority("ADMIN")
+                        .requestMatchers(SecurityURLs.ALL).permitAll()
+                        .requestMatchers(HttpMethod.GET, SecurityURLs.GET).permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, SecurityURLs.OPTIONS).permitAll()
+                        .requestMatchers(HttpMethod.POST, SecurityURLs.POST).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, SecurityURLs.PUT).hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, SecurityURLs.DELETE).hasAuthority("ADMIN")
                         .anyRequest().authenticated())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)

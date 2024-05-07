@@ -12,7 +12,7 @@ import sport_maps.nef.service.NewsService;
 
 import java.io.IOException;
 
-import static sport_maps.commons.BaseController.BASE_URL;
+import static sport_maps.security.general.SecurityURLs.BASE_URL;
 
 @RestController
 @RequestMapping(BASE_URL + "/news")

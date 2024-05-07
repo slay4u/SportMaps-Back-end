@@ -2,12 +2,13 @@ package sport_maps.nef.service;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import sport_maps.commons.service.AbstractService;
 import sport_maps.image.dao.EventImageDao;
 import sport_maps.image.domain.EventImage;
 import sport_maps.commons.util.mapper.Mapper;
 import sport_maps.security.dao.UserDao;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,20 +24,23 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
 @Transactional
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl extends AbstractService<Event, EventDao> implements EventService {
     private final EventImageDao imageDao;
     private final String FOLDER_PATH;
-    private final EventDao eventDao;
     private final UserDao userDao;
     private final Mapper mapper;
 
-    public EventServiceImpl(EventDao eventDao, EventImageDao imageDao, UserDao userDao, Mapper mapper) throws URISyntaxException {
-        this.eventDao = eventDao;
+    @Override
+    @Autowired
+    protected void setDao(EventDao eventDao) {
+        this.dao = eventDao;
+    }
+
+    public EventServiceImpl(EventImageDao imageDao, UserDao userDao, Mapper mapper) throws URISyntaxException {
         this.imageDao = imageDao;
         this.FOLDER_PATH = getFOLDER_PATH();
         this.userDao = userDao;
@@ -54,37 +58,29 @@ public class EventServiceImpl implements EventService {
     public void createEvent(EventSaveDto dto) {
         validateEvent(dto);
         validateEventName(dto.name());
-        User user = getUser(dto);
-        SportType sportType = getSportType(dto);
-        Event event = mapper.convertToEntity(dto, sportType, user, new Event());
-        eventDao.save(event);
+        save(mapper.convertToEntity(dto, getSportType(dto), getUser(dto)));
     }
 
     @Override
     public void updateEvent(Long id, EventSaveDto dto) {
         validateEvent(dto);
         validateEventName(dto.name());
-        User user = getUser(dto);
-        SportType sportType = getSportType(dto);
-        Event event = mapper.convertToEntity(dto, sportType, user, new Event());
-        eventDao.save(updateContent(event, getById(id)));
+        update(mapper.convertToEntity(dto, getSportType(dto), getUser(dto)), id);
     }
 
     @Override
     public EventDto getEventById(Long id) {
-        Event byId = getById(id);
-        return mapper.toEventDto(byId);
+        return mapper.convertToDto(getById(id));
     }
 
     @Override
     public void deleteById(Long id) {
-        getById(id);
-        eventDao.deleteById(id);
+        delete(id);
     }
 
     @Override
     public Page<EventDto> getAllEvents(int page) {
-        return eventDao.findAll(PageRequest.of(page, size)).map(mapper::toEventDto);
+        return getAll(page, size).map(mapper::convertToDto);
     }
 
     @Override
@@ -103,7 +99,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private User getUser(EventSaveDto dto) {
-        return userDao.findByEmail(dto.author()).orElseThrow(() -> new EntityNotFoundException("User wasn't found."));
+        return userDao.findByEmail(dto.author()).orElseThrow(EntityNotFoundException::new);
     }
 
     private void validateSportType(String sportInString) {
@@ -124,42 +120,18 @@ public class EventServiceImpl implements EventService {
     }
 
     private void validateEvent(EventSaveDto dto) {
-        if (dto.name().isBlank()) {
-            throw new IllegalArgumentException("Name is not valid.");
-        }
-        if (dto.date().isAfter(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Date is not valid.");
-        }
-        if (dto.text().isBlank()) {
-            throw new IllegalArgumentException("Text is not valid.");
-        }
-        if (dto.author().isBlank()) {
-            throw new IllegalArgumentException("User email is not valid.");
-        }
-        if (dto.sportType().isBlank()) {
-            throw new IllegalArgumentException("Sport type is not valid.");
-        }
+        if (dto.name().isBlank()) throw new IllegalArgumentException("Name is not valid.");
+        if (dto.text().isBlank()) throw new IllegalArgumentException("Text is not valid.");
+        if (dto.author().isBlank()) throw new IllegalArgumentException("User email is not valid.");
+        if (dto.sportType().isBlank()) throw new IllegalArgumentException("Sport type is not valid.");
     }
 
     private void validateEventName(String name) {
-        Optional<Event> byName = eventDao.findByName(name);
-        if (byName.isPresent()) throw new EntityExistsException("Event with that name already exists.");
+        if (dao.existsByName(name)) throw new EntityExistsException("Event with that name already exists.");
     }
 
     private void validatePresentImage(String name, String filePath) {
         Optional<EventImage> result = imageDao.findByNameAndFilePath(name, filePath);
         if (result.isPresent()) throw new EntityExistsException("Image already exists!");
-    }
-
-    private Event updateContent(Event event, Event resultEvent) {
-        resultEvent.setText(event.getText());
-        resultEvent.setName(event.getName());
-        resultEvent.setSportType(event.getSportType());
-        resultEvent.setDate(event.getDate());
-        return resultEvent;
-    }
-
-    private Event getById(Long id) {
-        return eventDao.findById(id).orElseThrow(() -> new EntityNotFoundException("Event wasn't found."));
     }
 }
