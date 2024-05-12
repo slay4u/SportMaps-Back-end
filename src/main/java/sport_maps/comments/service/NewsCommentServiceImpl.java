@@ -16,10 +16,9 @@ import sport_maps.security.domain.User;
 
 @Service("newsCommentServiceImpl")
 @Transactional
-public class NewsCommentServiceImpl extends AbstractService<NewsComment, NewsCommentDao> implements CommentService {
+public class NewsCommentServiceImpl extends AbstractService<NewsComment, NewsCommentDao, Mapper> implements CommentService {
     private final UserDao userDao;
     private final NewsDao newsDao;
-    private final Mapper mapper;
 
     @Override
     @Autowired
@@ -27,10 +26,15 @@ public class NewsCommentServiceImpl extends AbstractService<NewsComment, NewsCom
         this.dao = commentDao;
     }
 
-    public NewsCommentServiceImpl(UserDao userDao, NewsDao newsDao, Mapper mapper) {
+    @Override
+    @Autowired
+    protected void setMapper(Mapper mapper) {
+        this.mapper = mapper;
+    }
+
+    public NewsCommentServiceImpl(UserDao userDao, NewsDao newsDao) {
         this.userDao = userDao;
         this.newsDao = newsDao;
-        this.mapper = mapper;
     }
 
     @Override

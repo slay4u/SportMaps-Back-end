@@ -16,9 +16,8 @@ import sport_maps.security.domain.User;
 
 @Service
 @Transactional
-public class ForumServiceImpl extends AbstractService<Forum, ForumDao> implements ForumService {
+public class ForumServiceImpl extends AbstractService<Forum, ForumDao, Mapper> implements ForumService {
     private final UserDao userDao;
-    private final Mapper mapper;
 
     @Override
     @Autowired
@@ -26,9 +25,14 @@ public class ForumServiceImpl extends AbstractService<Forum, ForumDao> implement
         this.dao = forumDao;
     }
 
-    public ForumServiceImpl(UserDao userDao, Mapper mapper) {
-        this.userDao = userDao;
+    @Override
+    @Autowired
+    protected void setMapper(Mapper mapper) {
         this.mapper = mapper;
+    }
+
+    public ForumServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override

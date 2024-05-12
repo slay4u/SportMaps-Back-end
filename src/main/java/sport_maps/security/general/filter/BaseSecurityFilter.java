@@ -18,7 +18,7 @@ public class BaseSecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        String path = request.getServletPath();
+        String path = request.getRequestURI();
         String method = request.getMethod();
         return Arrays.stream(SecurityURLs.ALL).anyMatch(e -> path.contains(e.replaceAll("[*]+", "")))
                 || method.equals("OPTIONS")

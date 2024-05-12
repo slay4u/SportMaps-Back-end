@@ -11,6 +11,8 @@ import sport_maps.comments.domain.ForumComment;
 import sport_maps.comments.domain.NewsComment;
 import sport_maps.comments.dto.CommentDto;
 import sport_maps.comments.dto.CommentSaveDto;
+import sport_maps.image.domain.CoachImage;
+import sport_maps.image.domain.EventImage;
 import sport_maps.image.domain.Image;
 import sport_maps.commons.domain.SportType;
 import sport_maps.image.domain.NewsImage;
@@ -72,18 +74,18 @@ public class Mapper {
     }
 
     public EventDto convertToDto(Event event) {
-        return new EventDto(event.getId(), event.getName(), String.valueOf(event.getDate()), event.getText(), event.getAuthor().getEmail() + "|" + event.getAuthor().getFirstName() + "|" + event.getAuthor().getLastName(),
-                String.valueOf(event.getSportType()), fetchImage(event.getImageList()), convertToListDto(event.getComments()));
+        return new EventDto(event.getId(), event.getName(), String.valueOf(event.getDate()), event.getText(), event.getAuthor().getEmail() +
+                "|" + event.getAuthor().getFirstName() + "|" + event.getAuthor().getLastName(), String.valueOf(event.getSportType()), fetchImage(event.getImageList()), convertToListDto(event.getComments()));
     }
 
     public ForumDto convertToDto(Forum forum) {
-        return new ForumDto(forum.getId(), forum.getName(), String.valueOf(forum.getDate()), forum.getText(), forum.getAuthor().getEmail() + "|" + forum.getAuthor().getFirstName() + "|" + forum.getAuthor().getLastName(),
-                convertToListDto(forum.getComments()));
+        return new ForumDto(forum.getId(), forum.getName(), String.valueOf(forum.getDate()), forum.getText(), forum.getAuthor().getEmail() +
+                "|" + forum.getAuthor().getFirstName() + "|" + forum.getAuthor().getLastName(), convertToListDto(forum.getComments()));
     }
 
     public NewsDto convertToDto(News news) {
-        return new NewsDto(news.getId(), news.getName(), String.valueOf(news.getDate()), news.getText(), news.getAuthor().getEmail() + "|" + news.getAuthor().getFirstName() + "|" + news.getAuthor().getLastName(),
-                fetchImage(news.getImageList()), convertToListDto(news.getComments()));
+        return new NewsDto(news.getId(), news.getName(), String.valueOf(news.getDate()), news.getText(), news.getAuthor().getEmail() +
+                "|" + news.getAuthor().getFirstName() + "|" + news.getAuthor().getLastName(), fetchImage(news.getImageList()), convertToListDto(news.getComments()));
     }
 
     public Forum convertToEntity(ForumSaveDto dto, User user) {
@@ -120,6 +122,24 @@ public class Mapper {
         return image;
     }
 
+    public CoachImage convertToEntity(Coach coach, MultipartFile file, String fileName, String filePath) {
+        CoachImage image = new CoachImage();
+        image.setName(fileName);
+        image.setType(file.getContentType());
+        image.setFilePath(filePath);
+        image.setCoach(coach);
+        return image;
+    }
+
+    public EventImage convertToEntity(Event event, MultipartFile file, String fileName, String filePath) {
+        EventImage image = new EventImage();
+        image.setName(fileName);
+        image.setType(file.getContentType());
+        image.setFilePath(filePath);
+        image.setEvent(event);
+        return image;
+    }
+
     public byte[] fetchImage(List<? extends Image> allByEntityId) {
         if (allByEntityId.isEmpty()) {
             return null;
@@ -148,6 +168,7 @@ public class Mapper {
     }
 
     public CoachDto convertToDto(Coach coach) {
-        return new CoachDto(coach.getId(), coach.getFirstName(), coach.getLastName(), coach.getAge(), coach.getExperience(), coach.getPrice(), coach.getDescription(), String.valueOf(coach.getSportType()), fetchImage(coach.getImageList()));
+        return new CoachDto(coach.getId(), coach.getFirstName(), coach.getLastName(), coach.getAge(), coach.getExperience(), coach.getPrice(),
+                coach.getDescription(), String.valueOf(coach.getSportType()), fetchImage(coach.getImageList()));
     }
 }

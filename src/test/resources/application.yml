@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:db;DB_CLOSE_DELAY=-1
+    username: post
+    password: post
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    database: h2
+    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+  mail:
+    host: host
+    port: 0
+    username: username
+    password: password
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    test-connection: true
+time:
+  jwt: 5
+  refresh: 5
+  signup: 5
+google-api-key: your-key
+task:
+  purge: time

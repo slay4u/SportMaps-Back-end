@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface SMarkerDao extends JpaRepository<SMarker, Long> {
     Optional<SMarker> findByLngAndLat(float lng, float lat);
     List<SMarker> findAllByTextLocation(String textLocation);
+    boolean existsByLngAndLat(float lng, float lat);
 }

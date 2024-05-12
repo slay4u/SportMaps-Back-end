@@ -9,6 +9,7 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.web.util.WebUtils;
 import sport_maps.commons.service.AbstractService;
+import sport_maps.commons.util.mapper.Mapper;
 import sport_maps.security.dao.RefreshTokenDao;
 import sport_maps.security.domain.RefreshToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +22,7 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class RefreshTokenService extends AbstractService<RefreshToken, RefreshTokenDao> {
+public class RefreshTokenService extends AbstractService<RefreshToken, RefreshTokenDao, Mapper> {
     @Value("${time.refresh}")
     private Long refreshExpiration;
 
@@ -29,6 +30,12 @@ public class RefreshTokenService extends AbstractService<RefreshToken, RefreshTo
     @Autowired
     protected void setDao(RefreshTokenDao refreshTokenDao) {
         this.dao = refreshTokenDao;
+    }
+
+    @Override
+    @Autowired
+    protected void setMapper(Mapper mapper) {
+        this.mapper = mapper;
     }
 
     public String generateRefreshToken(User user) {
@@ -67,7 +74,7 @@ public class RefreshTokenService extends AbstractService<RefreshToken, RefreshTo
         return null;
     }
 
-    private RefreshToken getRefreshToken(String token) {
+    public RefreshToken getRefreshToken(String token) {
         return dao.findByToken(token).orElseThrow(EntityNotFoundException::new);
     }
 }

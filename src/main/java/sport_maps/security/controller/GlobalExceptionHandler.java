@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
     private static final Logger log = getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler({IllegalArgumentException.class, EntityExistsException.class, IOException.class, HttpMessageNotReadableException.class,
-    NoSuchFieldException.class, IllegalAccessException.class})
+    NoSuchFieldException.class, IllegalAccessException.class, IllegalStateException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public void IllegalArgumentAndEntityExistsAndIOAndHttpMessageNotReadable(Exception e) {
         switch (e) {
@@ -33,6 +33,7 @@ public class GlobalExceptionHandler {
             case HttpMessageNotReadableException ignored -> log.warn("HttpMessageNotReadableException thrown: {}", e.getMessage());
             case NoSuchFieldException ignored -> log.warn("NoSuchFieldException thrown: {}", e.getMessage());
             case IllegalAccessException ignored -> log.warn("IllegalAccessException thrown: {}", e.getMessage());
+            case IllegalStateException ignored -> log.warn("IllegalStateException thrown: {}", e.getMessage());
             default -> {}
         }
     }

@@ -5,13 +5,10 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import sport_maps.commons.service.AbstractService;
-import sport_maps.image.dao.EventImageDao;
-import sport_maps.image.domain.EventImage;
 import sport_maps.commons.util.mapper.Mapper;
 import sport_maps.security.dao.UserDao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import sport_maps.commons.domain.SportType;
 import sport_maps.nef.domain.Event;
 import sport_maps.nef.dto.EventDto;
@@ -19,20 +16,10 @@ import sport_maps.nef.dto.EventSaveDto;
 import sport_maps.nef.dao.EventDao;
 import sport_maps.security.domain.User;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.util.Optional;
-
 @Service
 @Transactional
-public class EventServiceImpl extends AbstractService<Event, EventDao> implements EventService {
-    private final EventImageDao imageDao;
-    private final String FOLDER_PATH;
+public class EventServiceImpl extends AbstractService<Event, EventDao, Mapper> implements EventService {
     private final UserDao userDao;
-    private final Mapper mapper;
 
     @Override
     @Autowired
@@ -40,18 +27,14 @@ public class EventServiceImpl extends AbstractService<Event, EventDao> implement
         this.dao = eventDao;
     }
 
-    public EventServiceImpl(EventImageDao imageDao, UserDao userDao, Mapper mapper) throws URISyntaxException {
-        this.imageDao = imageDao;
-        this.FOLDER_PATH = getFOLDER_PATH();
-        this.userDao = userDao;
+    @Override
+    @Autowired
+    protected void setMapper(Mapper mapper) {
         this.mapper = mapper;
     }
 
-    private String getFOLDER_PATH() throws URISyntaxException {
-        URL res = EventServiceImpl.class.getClassLoader().getResource("images");
-        assert res != null;
-        File file = Paths.get(res.toURI()).toFile();
-        return file.getAbsolutePath();
+    public EventServiceImpl(UserDao userDao) {
+        this.userDao = userDao;
     }
 
     @Override
@@ -64,7 +47,7 @@ public class EventServiceImpl extends AbstractService<Event, EventDao> implement
     @Override
     public void updateEvent(Long id, EventSaveDto dto) {
         validateEvent(dto);
-        validateEventName(dto.name());
+        if (!getById(id).getName().contentEquals(dto.name())) validateEventName(dto.name());
         update(mapper.convertToEntity(dto, getSportType(dto), getUser(dto)), id);
     }
 
@@ -81,21 +64,6 @@ public class EventServiceImpl extends AbstractService<Event, EventDao> implement
     @Override
     public Page<EventDto> getAllEvents(int page) {
         return getAll(page, size).map(mapper::convertToDto);
-    }
-
-    @Override
-    public String uploadImage(MultipartFile file, Long id) throws IOException {
-        String filePath = FOLDER_PATH + "\\" + file.getOriginalFilename();
-        validatePresentImage(file.getOriginalFilename(), filePath);
-        Event byId = getById(id);
-        EventImage image = new EventImage();
-        image.setName(file.getOriginalFilename());
-        image.setType(file.getContentType());
-        image.setFilePath(filePath);
-        image.setEvent(byId);
-        imageDao.save(image);
-        file.transferTo(new File(filePath));
-        return "Image uploaded successfully " + file.getOriginalFilename();
     }
 
     private User getUser(EventSaveDto dto) {
@@ -128,10 +96,5 @@ public class EventServiceImpl extends AbstractService<Event, EventDao> implement
 
     private void validateEventName(String name) {
         if (dao.existsByName(name)) throw new EntityExistsException("Event with that name already exists.");
-    }
-
-    private void validatePresentImage(String name, String filePath) {
-        Optional<EventImage> result = imageDao.findByNameAndFilePath(name, filePath);
-        if (result.isPresent()) throw new EntityExistsException("Image already exists!");
     }
 }

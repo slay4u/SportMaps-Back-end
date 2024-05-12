@@ -1,6 +1,8 @@
 package sport_maps.security.domain;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.lang.NonNull;
 
@@ -13,7 +15,8 @@ public abstract class Token {
     private Long id;
     @Column(nullable = false)
     private String token;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(optional = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(nullable = false)
     private User user;
     @Column(nullable = false)
